@@ -69,4 +69,5 @@ while len(C02) != 1:
 print("C02: %d" % int(C02[0], base=2))
 
 
-print("Lifesupport Rating: %d" % (int(oxygen[0], base=2) * int(C02[0], base=2)) )
+print("Lifesupport Rating: %d" %
+      (int(oxygen[0], base=2) * int(C02[0], base=2)))

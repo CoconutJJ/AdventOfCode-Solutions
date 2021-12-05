@@ -1,8 +1,5 @@
-
-
 from typing import List
 import sys
-
 
 class Board:
 
@@ -57,12 +54,9 @@ class Board:
 fp = open(sys.argv[1], "r")
 
 lines = fp.readlines()
-
 lines = [l.strip("\n") for l in lines]
 
-
-numbers = map(int, lines[0].split(","))
-
+numbers: List[int] = map(int, lines[0].split(","))
 boards: List[Board] = []
 
 rows = []
@@ -73,7 +67,6 @@ for l in lines[1:]:
         continue
     
     l = l.split(" ")
-
     l = [int(j) for j in l if len(j) > 0]
 
 
@@ -98,14 +91,6 @@ for n in numbers:
     boards = survivingBoards
 
 print("Last Board Win Score %d" % lastWinScore)
-
-
-
-    
-
-
-
-
 
 # Part 1
 # for n in numbers:
