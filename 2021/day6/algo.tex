@@ -1,0 +1,76 @@
+\documentclass{article}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\title{Advent of Code: Day 6 Solution}
+\date{}
+\begin{document}
+    \maketitle
+    \noindent Each fish reproduces at the end of their own internal timer, and resets
+    its own timer to 6.\\
+    
+    \noindent Define \(T(L,D)\) be to the number of fish after \(D\) days
+    starting with a single fish having an internal timer of \(L\). We have three
+    cases
+    \begin{enumerate}
+        \item [Case 1.] \(D = 0, L \in \mathbb{N}\). There are no more days remaining,
+        this fish cannot reproduce. We still have only 1 fish.
+        \item [Case 2.] \(L = 0, D > 0\). \(D\) is at minimum 1, so this fish can reproduce.
+        This gives us another fish with a timer set to 8 and the original fish's timer is 
+        reset to 6. Thus in \(D - 1\) days we will have \(T(8, D-1) + T(6, D - 1)\)
+        \item [Case 3.] The fish is not yet ready to reproduce, we skip until
+        either the fish timer expires again or the days have been exhausted -
+        whichever comes first. This is \(T(L - \min(L,D), D - \min(L,D))\)
+    \end{enumerate}
+    We get the following recurrence,
+    \begin{eqnarray}
+        T(L,D) = \begin{cases}
+            1 & \textrm{if } D = 0, L \in \mathbb{N}\\
+            T(8, D - 1) + T(6, D - 1) & \textrm{if } L = 0, D > 0\\
+            T(L - \min(L,D), D - \min(L,D)) & \textrm{otherwise}
+        \end{cases}
+    \end{eqnarray}
+    \begin{enumerate}
+        \item [Base Case.] \(k = 0, 0 \leq L \leq 8\).\\ 
+        Then \(T(L,k) = T(L,0) = 1\) as wanted.
+        \item[I.H] Suppose by induction that
+        \begin{equation}
+            P(n): T(L,n) \textrm{ gives the number of fish after } n \textrm{ days for any } 0 \leq L \leq 8
+        \end{equation}
+        holds whenever \(0 \leq n < k\).
+        \item [W.T.S] \(P(k)\) holds.
+        \(T(L,k)\) has 3 cases,
+        \begin{enumerate}
+            \item \(k = 0\). Then \(T(L,k) = T(L,0) = 1\) as wanted (by base case).
+            \item \(L = 0, k > 0\). \(T(L,k) = T(8, k -1) + T(6, k - 1)\).\\
+            Since \(k - 1 < k\), by I.H, \(T(8, k - 1)\) returns the correct value.\\
+            Since \(k - 1 < k\), by I.H, \(T(6, k - 1)\) returns the correct value.\\
+            It is easy to see that number of fish after \(k\) days will the be
+            the sum of these two values. Therefore \(T(L,k) = T(8, k -1) + T(6, k - 1)\) as wanted.
+            \item \(L > 0, k > 0\). Then we have 3 cases,
+            \begin{enumerate}
+                \item[\(L < k\):] Then it follows that 
+                \begin{align}
+                    T(L,k) &= T(L - \min(L,k), k - \min(L,k))\\ 
+                    &=T(0,k') \textrm{ where } k' = k - L
+                \end{align}
+                Since \(k' = k - L < k\), \(T(0,k')\) returns the correct value. (By I.H)
+                \item[\(L > k\):] Then it follows that 
+                \begin{align}
+                    T(L,k) &= T(L - \min(L,k), k - \min(L,k))\\ 
+                    &=T(L',0) \textrm{ where } L' = L - k
+                \end{align}
+                Since \(0 < k\), \(T(L',0)\) returns the correct value. (By I.H)
+                \item[\(L = k\):] Then it follows that 
+                \begin{align}
+                    T(L,k) &= T(L - \min(L,k), k - \min(L,k))\\ 
+                    &=T(0,0)\\
+                    & = 1
+                \end{align}
+                Since \(0 < k\), \(T(0,0)\) returns the correct value. (By I.H)
+
+            \end{enumerate}
+
+        \end{enumerate}
+    \end{enumerate}
+\end{document}
