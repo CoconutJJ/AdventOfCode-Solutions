@@ -1,0 +1,61 @@
+\documentclass{article}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\title{Advent of Code Day 7}
+\begin{document}
+\setlength{\parindent}{0ex}
+
+\section{Part 1}
+We would like to minimize the total fuel usage of all the crab submarines.
+The fuel usage \(F_i(y)\) for the submarine \(i\) is calculated as,
+
+\begin{equation}
+    F_i(y) = |y - x_i|
+\end{equation}
+
+where \(x_i\) is the original position of submarine \(i\).
+
+The total fuel usage is then,
+
+\begin{equation}
+    F(y) = \sum_{i} F_i(y) = \sum_{i} |y - x_i|
+\end{equation}
+
+We find the value \(y\) such that \(F(y)\) is at a minimum, this can be computed
+with
+\begin{equation}
+    F'(y) = \sum_{i} sign(|y - x_i|) = 0
+\end{equation}
+
+We see that \(F'(y)\) is as close as possible to \(0\) when approximately
+half the \(x_i\)'s are greater than \(y\) and half the \(x_i\)'s are less than
+\(y\). Thus \(y = median(x_i)\) where \(1 \leq i \leq N\)
+
+\section{Part 2}
+
+We simply redefine \(F_i(y)\) to be
+
+\begin{equation}
+    F_i(y) = \frac{|y - x_i| (|y - x_i| + 1)}{2}
+\end{equation}
+
+The total fuel usage is then,
+
+\begin{align}
+    F(y) &= \sum_{i} F_i(y)\\
+    &= \sum_{i} \frac{|y - x_i| (|y - x_i| + 1)}{2}\\
+    &= \frac{1}{2}\sum_{i} (y - x_i)^2 + |y - x_i|
+\end{align}
+
+
+We find the value \(y\) such that \(F(y)\) is at a minimum, this can be computed
+with
+\begin{align}
+    F'(y) &= \frac{1}{2}\sum_{i} 2(y - x_i) + sign(y - x_i)\\
+    &= \sum_{i} (y - x_i) + \frac{sign(y - x_i)}{2}\\
+    &= Ny - \sum_{i}x_i + \frac{1}{2}\sum_{i} sign(y - x_i)
+\end{align}
+
+
+\end{document}

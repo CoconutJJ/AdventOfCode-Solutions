@@ -51,7 +51,6 @@ def part2(lines: List[str], days: int):
     for i in range(0, 8 + 1):
         totalFish += newFishCount.get(i, 0)
 
-    # print("Total fish after %d days: %d" % (days, totalFish))
     return totalFish
 
 
@@ -91,7 +90,7 @@ def fishCountIter(life, days):
     for l in range(1, 8 + 1):
         for d in range(1, days + 1):
             F[(l,d)] = F[(l - min(l,d), d - min(l,d))]
-    print(F)
+    
     return F[(life, days)]
 
 if __name__ == "__main__":
@@ -101,7 +100,4 @@ if __name__ == "__main__":
     lines = [r.strip("\n") for r in lines]
 
     
-    for d in range(1, 100):
-        # part1(lines)
-        if part2(lines, d) != fishCountIter(6, d):
-            print(d)
+    print(fishCount(8,0), fishCount(6,0))
