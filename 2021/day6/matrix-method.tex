@@ -1,0 +1,68 @@
+\documentclass{article}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\begin{document}
+\setlength{\parindent}{0ex}
+Define the linear transformation \(T\) as follows,
+
+\begin{equation}
+    T(a,b,c,d,e,f,g,h,i) = [i, a, b + i, c, d, e, f, g, h]
+\end{equation}
+
+We can see that \(T\) is a transition function that maps the current day's state
+to the next day's state. \(a\) is the number of fish with internal timer 8,
+\(b\) is the number of fish with internal timer 7 and so on...
+
+The matrix representation of \(T\) is,
+\begin{equation}
+    A_T =
+    \begin{bmatrix}
+        0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+        1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+        0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+        0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+        0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\
+        0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+        0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+        0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+    \end{bmatrix}
+\end{equation}
+
+Let \(\vec{v_1}\) be the state on day 1. We wish to compute \(\vec{v_{256}}\),
+which can be expressed as
+
+\begin{equation}
+    \vec{v_{256}} = (A_T)^{256}\vec{v_1}
+\end{equation}
+
+Computing \((A_T)^{256}\) is incredibly expensive. Let us diagonalize \(A_T\) by
+computing it's eigenvectors
+
+
+
+\begin{align}
+     & A_T\vec{v} = \lambda v    \\
+     & \det(A_T - \lambda I) = 0
+\end{align}
+
+\begin{equation}
+    \det
+    \begin{bmatrix}
+        -\lambda & 0        & 0        & 0        & 0        & 0        & 0        & 0        & 1        \\
+        1        & -\lambda & 0        & 0        & 0        & 0        & 0        & 0        & 0        \\
+        0        & 1        & -\lambda & 0        & 0        & 0        & 0        & 0        & 1        \\
+        0        & 0        & 1        & -\lambda & 0        & 0        & 0        & 0        & 0        \\
+        0        & 0        & 0        & 1        & -\lambda & 0        & 0        & 0        & 0        \\
+        0        & 0        & 0        & 0        & 1        & -\lambda & 0        & 0        & 0        \\
+        0        & 0        & 0        & 0        & 0        & 1        & -\lambda & 0        & 0        \\
+        0        & 0        & 0        & 0        & 0        & 0        & 1        & -\lambda & 0        \\
+        0        & 0        & 0        & 0        & 0        & 0        & 0        & 1        & -\lambda \\
+    \end{bmatrix}
+    = -\lambda^9 + \lambda^2 + 1 = 0
+\end{equation}
+
+You get the point, I'm not solving a nonic-polynomial...
+
+\end{document}
