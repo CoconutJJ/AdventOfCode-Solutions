@@ -4,18 +4,92 @@ import requests
 import os
 
 
+def inGrid(i, j):
+    return (0 <= i < 10) and (0 <= j < 10)
+
+
+def neighbours(i, j):
+    children = [(i-1, j), (i + 1, j), (i, j - 1), (i, j + 1),
+                (i-1, j-1), (i-1, j+1), (i+1, j+1), (i+1, j - 1)]
+
+    for (x, y) in children:
+        if inGrid(x, y):
+            yield (x, y)
+
+
+def nextState(state: List[List[int]]):
+
+    # newState = [[0 for _ in range(len(state[0]))] for __ in range(len(state))]
+    hasFlashed = set()
+    visited = set()
+
+    def rec(i, j):
+        if (i, j) not in visited:
+            state[i][j] += 1
+            visited.add((i, j))
+
+        if (i, j) not in hasFlashed:
+
+            if state[i][j] > 9:
+                hasFlashed.add((i, j))
+                state[i][j] = 0
+
+                for (x, y) in neighbours(i, j):
+                    if (x, y) not in hasFlashed:
+                        state[x][y] += 1
+                        if state[x][y] > 9:
+                            rec(x, y)
+
+        for (x, y) in neighbours(i, j):
+            if (x, y) not in visited:
+                rec(x, y)
+
+    rec(0, 0)
+
+    return state, len(hasFlashed)
+
+
 def part1(lines: List[str]):
-    pass
+
+    grid = []
+
+    for l in lines:
+
+        grid.append([int(c) for c in l])
+
+    totalFlashes = 0
+    for step in range(100):
+        grid, flashes = nextState(grid)
+        totalFlashes += flashes
+
+    print("\n".join([str(g) for g in grid]))
+    
+    return totalFlashes
 
 
 def part2(lines: List[str]):
-    pass
+    grid = []
+
+    for l in lines:
+
+        grid.append([int(c) for c in l])
+
+    step = 0
+
+    while True:
+        step += 1
+        grid, flashes = nextState(grid)
+
+        if flashes == 100:
+            return step
 
 
 # region Fetch Input and Run
 YEAR = 2021
 
+
 def sessionKey():
+
     cwd = os.getcwd()
     curr = cwd
     while not os.path.exists("SESSION"):
@@ -23,10 +97,11 @@ def sessionKey():
         if curr == "/":
             print("Could not find SESSION file!")
             exit(1)
-    
+
     key = open("SESSION", "r")
     os.chdir(cwd)
     return key.read().strip("\n")
+
 
 def prompt(message):
 
@@ -34,7 +109,7 @@ def prompt(message):
         try:
             inp = input(message)
             inp = inp.strip("\n")
-            
+
             if inp == "q":
                 os._exit(0)
 
@@ -75,11 +150,11 @@ def fetchPuzzleInput():
     if dayNo is None:
         for dayNo in prompt("Error parsing day number. Please enter the day number: "):
             try:
-                dayNo = int(dayNo)                
+                dayNo = int(dayNo)
             except:
                 print("Invalid Day Number")
                 continue
-            
+
             break
 
     URL = "https://adventofcode.com/%d/day/%d/input" % (YEAR, dayNo)
