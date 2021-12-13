@@ -4,16 +4,109 @@ import requests
 import os
 
 
+def foldY(coord, Y):
+    x, y = coord
+
+    if y < Y:
+        return (x,y)
+
+    y = -(y - Y) + Y
+
+    return (x, y)
+
+
+def foldX(coord, X):
+
+    x, y = coord
+
+    if x < X:
+        return (x,y)
+
+    x = -(x - X) + X
+
+    return (x, y)
+
+def codestring(points):
+
+    maxX = 0
+    maxY = 0
+
+    for (x,y) in points:
+        maxX = max(maxX, x)
+        maxY = max(maxY, y)
+    
+    grid = [[" " for _ in range(maxX + 1)] for __ in range(maxY + 1)]
+
+    for (x,y) in points:
+        grid[y][x] = "#"
+    
+    return "\n".join(["".join(g) for g in grid])
+
+
 def part1(lines: List[str]):
-    pass
+
+    points = set()
+
+    folds = []
+
+    for l in lines:
+
+        if "," in l:
+            x, y = l.split(",")
+            points.add((int(x), int(y)))
+        elif "fold" in l:
+
+            instr = l.split(" ")[-1]
+            ax, v = instr.split("=")
+            folds.append((ax, int(v)))
+
+    first_fold_points = set()
+    fax, fv = folds[0]
+    for (x,y) in points:
+
+        if fax == "x":
+            first_fold_points.add(foldX((x,y), fv))
+        elif fax == "y":
+            first_fold_points.add(foldY((x,y), fv))
+
+    return len(first_fold_points)
 
 
 def part2(lines: List[str]):
-    pass
+    points = set()
+
+    folds = []
+
+    for l in lines:
+
+        if "," in l:
+            
+            x, y = l.split(",")
+            points.add((int(x), int(y)))
+        elif "fold" in l:
+
+            instr = l.split(" ")[-1]
+            ax, v = instr.split("=")
+            folds.append((ax, int(v)))
+
+    for fax,fv in folds:
+
+        first_fold_points = set()
+        for (x,y) in points:
+
+            if fax == "x":
+                first_fold_points.add(foldX((x,y), fv))
+            elif fax == "y":
+                first_fold_points.add(foldY((x,y), fv))
+        points = first_fold_points
+
+    
+    return codestring(points)
 
 
 # region Fetch Input and Run
 YEAR = 2021
+
 
 def sessionKey():
     """
@@ -27,17 +120,18 @@ def sessionKey():
         if curr == "/":
             print("Could not find SESSION file!")
             exit(1)
-    
+
     key = open("SESSION", "r")
     os.chdir(cwd)
     return key.read().strip("\n")
+
 
 def prompt(message):
     while True:
         try:
             inp = input(message)
             inp = inp.strip("\n")
-            
+
             if inp == "q":
                 os._exit(0)
 
@@ -81,11 +175,11 @@ def fetchPuzzleInput():
     if dayNo is None:
         for dayNo in prompt("Error parsing day number. Please enter the day number: "):
             try:
-                dayNo = int(dayNo)                
+                dayNo = int(dayNo)
             except:
                 print("Invalid Day Number")
                 continue
-            
+
             break
 
     URL = "https://adventofcode.com/%d/day/%d/input" % (YEAR, dayNo)

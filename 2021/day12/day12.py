@@ -3,13 +3,96 @@ from sys import argv
 import requests
 import os
 
+def isBigCave(cave):
+
+    return cave.upper() == cave
 
 def part1(lines: List[str]):
-    pass
+
+    adj_list = dict()
+
+    for l in lines:
+        [s,t] = l.split("-")
+
+        if s not in adj_list:
+            adj_list[s] = [t]
+        else:
+            adj_list[s].append(t)
+
+        if t not in adj_list:
+            adj_list[t] = [s]
+        else:
+            adj_list[t].append(s)
+
+    paths = 0
+    def rec(root, visited=set()):
+        nonlocal paths
+        new_visited = set(visited)
+        if root == "end":
+            paths += 1
+            return
+        for cave in adj_list.get(root, []):
+
+            if isBigCave(cave):
+                rec(cave, new_visited)
+                continue
+            
+            if cave not in new_visited:
+                new_visited.add(cave)
+                rec(cave, new_visited)
+                new_visited.remove(cave)
+        
+
+    rec("start", set(["start"]))
+
+
+    return paths
 
 
 def part2(lines: List[str]):
-    pass
+    adj_list = dict()
+
+    for l in lines:
+        [s,t] = l.split("-")
+
+        if s not in adj_list:
+            adj_list[s] = [t]
+        else:
+            adj_list[s].append(t)
+
+        if t not in adj_list:
+            adj_list[t] = [s]
+        else:
+            adj_list[t].append(s)
+
+    paths = 0
+    def rec(root, visited=set(), smallCave=False):
+        nonlocal paths
+        
+        new_visited = set(visited)
+        
+        if root == "end":
+            paths += 1
+            return
+
+        for cave in adj_list.get(root, []):
+
+            if isBigCave(cave):
+                rec(cave, new_visited, smallCave)
+                continue
+            
+            if cave not in new_visited:
+                new_visited.add(cave)
+                rec(cave, new_visited, smallCave)
+                new_visited.remove(cave)
+            else:
+                if not smallCave and cave != "start":
+                    rec(cave, new_visited, True)
+                
+    rec("start", set(["start"]))
+
+    return paths
+
 
 
 # region Fetch Input and Run
