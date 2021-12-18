@@ -2,18 +2,87 @@ from typing import List
 from sys import argv
 import requests
 import os
+import heapq
+
+
+def djikstra(N, M, cost):
+
+    def neighbours(x, y):
+        return [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+
+    def inGrid(x, y):
+        return (0 <= x < N) and (0 <= y < M)
+
+    pq = []
+    dist = dict()
+
+    for i in range(M):
+        for j in range(N):
+            heapq.heappush(pq, (float('inf'), (j, i)))
+            dist[(j, i)] = float('inf')
+
+    heapq.heappush(pq, (0, (0, 0)))
+
+    dist[(0, 0)] = 0
+
+    removed = set()
+
+    while len(removed) != N * M:
+
+        p, (x, y) = heapq.heappop(pq)
+        removed.add((x, y))
+        for i, j in neighbours(x, y):
+
+            if (i, j) not in removed and inGrid(i, j):
+
+                alt = p + cost(i, j)
+
+                if dist[(i, j)] > alt:
+
+                    dist[(i, j)] = alt
+
+                    heapq.heappush(pq, (alt, (i, j)))
+
+    return dist[(N - 1, M - 1)]
 
 
 def part1(lines: List[str]):
-    pass
 
+    grid = []
+
+    for l in lines:
+        grid.append([int(c) for c in l])
+
+    def cost(i,j):
+        return grid[j][i]
+
+    return djikstra(len(grid[0]), len(grid), cost)
 
 def part2(lines: List[str]):
-    pass
+    grid = []
+
+    for l in lines:
+        grid.append([int(c) for c in l])
+
+
+    def calcRiskLevel(i, j):
+
+        x = i//(len(grid[0]))
+        y = j//(len(grid))
+
+        i = i % len(grid[0])
+        j = j % len(grid)
+
+        cost = (grid[j][i] + x + y - 1) % 9 + 1
+
+        return cost
+
+    return djikstra(len(grid[0]) * 5, len(grid) * 5, calcRiskLevel)
 
 
 # region Fetch Input and Run
 YEAR = 2021
+
 
 def sessionKey():
     """
@@ -27,26 +96,29 @@ def sessionKey():
         if curr == "/":
             print("Could not find SESSION file!")
             exit(1)
-    
+
     key = open("SESSION", "r")
     os.chdir(cwd)
     return key.read().strip("\n")
 
+
 def prompt(message):
     while True:
-        
-        inp = input(message)
-        inp = inp.strip("\n")
-        
-        if inp == "q":
-            os._exit(0)
+        try:
+            inp = input(message)
+            inp = inp.strip("\n")
 
-        if inp is None or len(inp) == 0:
+            if inp == "q":
+                os._exit(0)
+
+            if inp is None or len(inp) == 0:
+                print("invalid input: type q to quit")
+                continue
+            yield inp
+        except GeneratorExit:
+            return
+        except:
             print("invalid input: type q to quit")
-            continue
-        
-        yield inp
-
 
 
 def fetchPuzzleInput():
@@ -79,11 +151,11 @@ def fetchPuzzleInput():
     if dayNo is None:
         for dayNo in prompt("Error parsing day number. Please enter the day number: "):
             try:
-                dayNo = int(dayNo)                
+                dayNo = int(dayNo)
             except:
                 print("Invalid Day Number")
                 continue
-            
+
             break
 
     URL = "https://adventofcode.com/%d/day/%d/input" % (YEAR, dayNo)
