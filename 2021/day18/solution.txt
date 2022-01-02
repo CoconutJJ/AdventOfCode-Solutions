@@ -1,0 +1,75 @@
+                    Advent of Code Day 18: Snailfish
+                    =================================
+
+This week's problem was a tricky one, on first glance Snailfish numbers always
+come in pairs, [x, y]. But within each Snailfish number there can be more pairs,
+so we are actually dealing with some nested structure like,
+
+    [[x,y], [[...,[c,d]]]]
+
+We can model this using a binary tree data structure. We let the non-leaf nodes
+represent each possible pair [ . , . ] and leaf nodes will be the actual numbers
+within pairs. So if we have a Snailfish number of the form: [1,2], then the tree
+representation will look like,
+
+      ┌───┐
+  ┌───┤   ├───┐
+  │   └───┘   │
+  │           │
+┌─▼─┐       ┌─▼─┐
+│ 1 │       │ 2 │
+└───┘       └───┘
+
+and if in some pair we have another pair as one of the elements like: [[1,2],
+3], we can simply model this with the hierarchy of the tree,
+
+              ┌───┐
+        ┌─────┤   ├───────┐
+        │     └───┘       │
+        │                 │
+      ┌─▼─┐             ┌─▼─┐
+  ┌───┤   ├───┐         │ 3 │
+  │   └───┘   │         └───┘
+  │           │
+┌─▼─┐       ┌─▼─┐
+│ 1 │       │ 2 │
+└───┘       └───┘
+
+You will see that this representation is particularly useful when we wish to
+reduce Snailfish numbers. However, the first thing to get out of the way is
+converting some input [x,y] into this nice tree structure. The algorithm for
+this is quite actually simple, but probably not intuitive for the beginner.
+
+Let's start off with the simplest case, one Snailfish number without any nested
+Snailfish numbers. Observe,
+
+[1, 2]
+
+Imagine of a moment, that your parser is fed this string and your code is
+looking at the first character, '['. This must be the start of a pair, after
+all, each pair is denoted with a set of opening and closing brackets. In our 
+example, whatever comes after this '[' must be a number, then a ',', and then 
+another number. 
+
+So suppose we have some function called expect(s) that reads a character from
+our input and sees if that character matches s. Then the pattern for our example
+should look something like,
+
+if expect('[')
+    expect(0-9)
+    expect(',')
+    expect(0-9)
+    expect(']')
+
+
+
+Let us
+define a function called parse() as follows:
+
+def parse(s)
+
+    
+
+
+
+
