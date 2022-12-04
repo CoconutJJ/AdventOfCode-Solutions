@@ -7,6 +7,7 @@ class Map:
     def __init__(self) -> None:
         self.beacons = set()
         self.scanners = []
+        
     def add_beacon(self, coord):
         self.beacons.add(coord)
 
