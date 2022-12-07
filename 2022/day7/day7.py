@@ -4,16 +4,132 @@ import requests
 import os
 
 
+class File:
+
+    def __init__(self, name) -> None:
+        self.parent = None
+        self.name = name
+        self.size = 0
+        self.children: list[File] = []
+
+
+def buildFileTree(lines: list[str]):
+    root = File("/")
+    root.parent = root
+    curr = None
+    for l in lines:
+
+        if l.startswith("$"):
+            command = l.split(" ")
+
+            match command[1]:
+                case "cd":
+                    match command[2]:
+                        case "..":
+                            curr = curr.parent
+                        case "/":
+                            curr = root
+                        case _:
+
+                            for f in curr.children:
+
+                                if f.name == command[2]:
+                                    curr = f
+                                    break
+                case "ls":
+                    continue
+        else:
+            if l.startswith("dir"):
+
+                dirent = l.split(" ")
+                f = File(dirent[1])
+                f.parent = curr
+                curr.children.append(f)
+            else:
+                dirent = l.split(" ")
+                f = File(dirent[1])
+                f.parent = curr
+                f.size = int(dirent[0])
+                curr.children.append(f)
+
+    return root
+
+def printFileTree(root: 'File', tab=0):
+    print("\t" * tab, root.name, "dir" if root.size == 0 else "file", )
+    for f in root.children:
+        printFileTree(f, tab + 1)
+
+
+def sizeof(dir: 'File'):
+
+    if len(dir.children) == 0:
+        return dir.size
+    else:
+        return sum(map(sizeof, dir.children))
+
 def part1(lines: List[str]):
-    pass
+
+    root = buildFileTree(lines)
+
+    total = 0
+
+    def getSizeOf(node: 'File'):
+        nonlocal total
+
+        if len(node.children) == 0:
+            return node.size
+        else:
+            size = 0
+
+            for f in node.children:
+                s = getSizeOf(f)    
+                size += s
+
+            if size <= 100000:
+                total += size
+
+            return size
+
+    getSizeOf(root)
+
+    return total
 
 
 def part2(lines: List[str]):
-    pass
+
+    root = buildFileTree(lines)
+
+    TOTAL_DISK_SPACE = 70000000
+
+    USED_SPACE = sizeof(root)
+
+    SPACE_NEEDED = 30000000 - (TOTAL_DISK_SPACE - USED_SPACE)
+
+    def findClosestDir(root: 'File'):
+        
+        s = sizeof(root)
+
+        if s < SPACE_NEEDED:
+            return (root.name, float('inf'))
+        else:
+
+            smallest = (root.name, s)
+
+            for f in root.children:
+
+                if (v := sizeof(f)) > SPACE_NEEDED and f.size == 0:
+                    smallest = min(smallest, findClosestDir(f), key=lambda r: r[1])
+
+            return smallest
+    
+    return findClosestDir(root)
+
+    
 
 
 # region Fetch Input and Run
 YEAR = 2022
+
 
 def sessionKey():
     """
@@ -27,26 +143,26 @@ def sessionKey():
         if curr == "/":
             print("Could not find SESSION file!")
             exit(1)
-    
+
     key = open("SESSION", "r")
     os.chdir(cwd)
     return key.read().strip("\n")
 
+
 def prompt(message):
     while True:
-        
+
         inp = input(message)
         inp = inp.strip("\n")
-        
+
         if inp == "q":
             os._exit(0)
 
         if inp is None or len(inp) == 0:
             print("invalid input: type q to quit")
             continue
-        
-        yield inp
 
+        yield inp
 
 
 def fetchPuzzleInput():
@@ -79,11 +195,11 @@ def fetchPuzzleInput():
     if dayNo is None:
         for dayNo in prompt("Error parsing day number. Please enter the day number: "):
             try:
-                dayNo = int(dayNo)                
+                dayNo = int(dayNo)
             except:
                 print("Invalid Day Number")
                 continue
-            
+
             break
 
     URL = "https://adventofcode.com/%d/day/%d/input" % (YEAR, dayNo)

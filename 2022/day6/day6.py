@@ -5,12 +5,19 @@ import os
 
 
 def part1(lines: List[str]):
-    pass
+    l = lines[0]
+
+    for i in range(4, len(l)):
+        if len(set([c for c in l[i-4: i]])) == 4:
+            return i
 
 
 def part2(lines: List[str]):
-    pass
+    l = lines[0]
 
+    for i in range(14, len(l)):
+        if len(set([c for c in l[i-14: i]])) == 14:
+            return i
 
 # region Fetch Input and Run
 YEAR = 2022
