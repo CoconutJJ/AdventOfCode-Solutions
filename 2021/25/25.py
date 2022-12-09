@@ -38,11 +38,9 @@ def part1(lines: List[str]):
                         eastMovedState[t][r] = ">"
                         hasMoved = True
                         continue
-                        
+
                 if eastMovedState[y][x] == ".":
                     eastMovedState[y][x] = init[y][x]
-        
-
 
         finalState = [["." for x in range(width)] for y in range(height)]
 
@@ -56,7 +54,7 @@ def part1(lines: List[str]):
                         finalState[t][r] = "v"
                         hasMoved = True
                         continue
-                
+
                 if finalState[y][x] == ".":
                     finalState[y][x] = eastMovedState[y][x]
 

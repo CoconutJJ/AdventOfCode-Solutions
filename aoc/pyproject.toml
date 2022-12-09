@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "aoc"
+version = "0.1.0"
+description = ""
+authors = ["David Yue <davidyue5819@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.28.1"
+
+
+[tool.poetry.group.dev.dependencies]
+autopep8 = "^2.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -3,6 +3,7 @@ from sys import argv
 import requests
 import os
 
+
 def part1(lines: List[str]):
 
     points = {
@@ -88,11 +89,12 @@ def part2(lines: List[str]):
             scores.append(totalScore)
         print("%s : Valid: %s, Score: %d" % (l, str(valid), totalScore))
 
-
     return sorted(scores)
+
 
 # region Fetch Input and Run
 YEAR = 2021
+
 
 def sessionKey():
     cwd = os.getcwd()
@@ -102,10 +104,11 @@ def sessionKey():
         if curr == "/":
             print("Could not find SESSION file!")
             exit(1)
-    
+
     key = open("SESSION", "r")
     os.chdir(cwd)
     return key.read().strip("\n")
+
 
 def fetchPuzzleInput():
     print("Fetching puzzle input...")

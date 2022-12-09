@@ -6,6 +6,7 @@ import math
 
 hasUpdate = False
 
+
 class Node:
 
     def __init__(self, value, left, right) -> None:
@@ -13,6 +14,7 @@ class Node:
         self.left = left
         self.right = right
         self.value = value
+
 
 def createBT(p):
 
@@ -30,11 +32,13 @@ def createBT(p):
 
     return parent
 
+
 def addPair(l: Node, r: Node):
     node = Node(None, l, r)
     l.parent = node
     r.parent = node
     return node
+
 
 def addLeftSibling(target: Node, value: int):
     orig = target
@@ -51,6 +55,7 @@ def addLeftSibling(target: Node, value: int):
         target = target.right
 
     target.value += value
+
 
 def addRightSibling(target: Node, value: int):
     orig = target
@@ -70,6 +75,8 @@ def addRightSibling(target: Node, value: int):
     target.value += value
 
 # no splits before explode
+
+
 def reduceExplode(root: Node, depth=0):
     global hasUpdate
 

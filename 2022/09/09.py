@@ -1,138 +1,140 @@
-from typing import List
-from sys import argv
-import requests
-import os
+from aoc import AdventOfCode
 
 
-def part1(lines: List[str]):
-    pass
+class Rope:
 
+    def __init__(self, N: int) -> None:
+        self.knots = [(0, 0) for _ in range(N)]
+        self.old = (0, 0)
+        self.tail_positions = set()
 
-def part2(lines: List[str]):
-    pass
+    def up(self):
+        hx, hy = self.knots[0]
 
+        hy += 1
+        self.old = (hx, hy - 1)
+        self.knots[0] = (hx, hy)
+        self.update()
 
-# region Fetch Input and Run
-YEAR = 2022
+    def down(self):
+        hx, hy = self.knots[0]
 
-def sessionKey():
-    """
-        Move up the dir. tree until we see a file named SESSION. Then read
-        the session key.
-    """
-    cwd = os.getcwd()
-    curr = cwd
-    while not os.path.exists("SESSION"):
-        os.chdir(curr := os.path.join(curr, ".."))
-        if curr == "/":
-            print("Could not find SESSION file!")
-            exit(1)
-    
-    key = open("SESSION", "r")
-    os.chdir(cwd)
-    return key.read().strip("\n")
+        hy -= 1
+        self.old = (hx, hy + 1)
+        self.knots[0] = (hx, hy)
+        self.update()
 
-def prompt(message):
-    while True:
-        
-        inp = input(message)
-        inp = inp.strip("\n")
-        
-        if inp == "q":
-            os._exit(0)
+    def left(self):
+        hx, hy = self.knots[0]
 
-        if inp is None or len(inp) == 0:
-            print("invalid input: type q to quit")
-            continue
-        
-        yield inp
+        hx -= 1
+        self.old = (hx + 1, hy)
+        self.knots[0] = (hx, hy)
+        self.update()
 
+    def right(self):
+        hx, hy = self.knots[0]
 
+        hx += 1
+        self.old = (hx - 1, hy)
+        self.knots[0] = (hx, hy)
+        self.update()
 
-def fetchPuzzleInput():
-    """
+    def update(self):
+        new_rope = [tuple(self.knots[0])]
+        curr = tuple(self.knots[0])
 
-    """
-    print("Fetching puzzle input...")
+        for tail in self.knots[1:]:
 
-    if os.path.isfile("input.txt"):
-        print("Using cached input...")
-        fp = open("input.txt", "r")
-        lines = fp.readlines()
-        lines = [r.strip("\n") for r in lines]
-        return lines
+            if not self.is_adjacent(curr, tail):
+                dx, dy = self.compute_tail_move(curr, tail)
+                tx, ty = tail
+                new_rope.append((tx + dx, ty + dy))
+                self.old = tail
+            else:
+                new_rope.append(tail)
 
-    s = requests.Session()
+            curr = new_rope[-1]
 
-    s.cookies.set("session", sessionKey(), domain=".adventofcode.com")
+        self.knots = new_rope
+        self.tail_positions.add(self.knots[-1])
 
-    filename, _ = argv[0].split(".")
+    def _sign(self, x: int):
 
-    dayNo = None
-
-    if filename.startswith("day"):
-        try:
-            dayNo = int(filename[3:])
-        except:
-            dayNo = None
-
-    if dayNo is None:
-        for dayNo in prompt("Error parsing day number. Please enter the day number: "):
-            try:
-                dayNo = int(dayNo)                
-            except:
-                print("Invalid Day Number")
-                continue
-            
-            break
-
-    URL = "https://adventofcode.com/%d/day/%d/input" % (YEAR, dayNo)
-
-    # pretend to be linux firefox...
-    body = s.get(URL, headers={
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0"
-    })
-
-    fp = open("input.txt", "w")
-    fp.write(body.content.decode("utf-8"))
-    fp.close()
-
-    lines = body.content.decode("utf-8").splitlines()
-    lines = [r.strip("\n") for r in lines]
-
-    return lines
-
-
-if __name__ == "__main__":
-
-    if len(argv) < 2:
-        lines = fetchPuzzleInput()
-    else:
-        fp = open(argv[1], "r")
-        lines = fp.readlines()
-        lines = [r.strip("\n") for r in lines]
-
-    for part in prompt("Which part to run ? [1 (default)/2]: "):
-
-        part = part.strip("\n")
-
-        if len(part) == 0:
-            print(part1(lines))
-            break
-
-        try:
-            part = int(part)
-        except:
-            print("Invalid part number")
-            continue
-
-        if part == 1:
-            print(part1(lines))
-        elif part == 2:
-            print(part2(lines))
+        if x < 0:
+            return -1
+        elif x == 0:
+            return 0
         else:
-            print("Invalid part number")
-            continue
+            return 1
 
-        break
-# endregion
+    def compute_tail_move(self, head: tuple[int, int], tail: tuple[int, int]):
+        hx, hy = head
+        tx, ty = tail
+
+        dx = hx - tx
+        dy = hy - ty
+
+        return (self._sign(dx), self._sign(dy))
+
+    def is_adjacent(self, head: tuple[int, int], tail: tuple[int, int]):
+        hx, hy = head
+        tx, ty = tail
+
+        dx = abs(hx - tx)
+        dy = abs(hy - ty)
+
+        if dx > 1:
+            return False
+
+        if dy > 1:
+            return False
+
+        return True
+
+
+def simulate_rope(movements: list[str], length: int):
+    r = Rope(length)
+
+    for l in movements:
+        match l.split(" "):
+            case ["R", d]:
+                d = int(d)
+
+                while d > 0:
+                    r.right()
+                    d -= 1
+
+            case ["L", d]:
+                d = int(d)
+
+                while d > 0:
+                    r.left()
+                    d -= 1
+
+            case ["U", d]:
+                d = int(d)
+
+                while d > 0:
+                    r.up()
+                    d -= 1
+
+            case ["D", d]:
+                d = int(d)
+
+                while d > 0:
+                    r.down()
+                    d -= 1
+
+    return len(r.tail_positions)
+
+
+def part1(lines: list[str]):
+    return simulate_rope(lines, 2)
+
+
+def part2(lines: list[str]):
+    return simulate_rope(lines, 10)
+
+
+AdventOfCode(part1, part2, day=9).exec()

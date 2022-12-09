@@ -25,7 +25,7 @@ def part1(lines: List[str]):
     for y, l in enumerate(lines[2:]):
         x = 0
         for c in l:
-            img[(x,y)] = (c == "#")
+            img[(x, y)] = (c == "#")
             x += 1
 
     def next_step(img: dict, xrange, yrange, zero_val):
@@ -51,9 +51,9 @@ def part1(lines: List[str]):
                     y_max = max(y_max, j)
                     # print(i,j)
 
-                    if (i,j) not in img:
+                    if (i, j) not in img:
                         bin_str += str(zero_val)
-                    elif not img[(i,j)]:
+                    elif not img[(i, j)]:
                         bin_str += "0"
                     else:
                         bin_str += "1"
@@ -61,21 +61,20 @@ def part1(lines: List[str]):
                 idx = int(bin_str, 2)
 
                 if img_map[idx] == "#":
-                    new_img[(x,y)] = True
+                    new_img[(x, y)] = True
                 else:
-                    new_img[(x,y)] = False
+                    new_img[(x, y)] = False
 
         return new_img, (x_min, x_max), (y_min, y_max)
 
-
-    finished_img, xrange, yrange = next_step(img, (0, dimX - 1), (0, dimY - 1), 0)
+    finished_img, xrange, yrange = next_step(
+        img, (0, dimX - 1), (0, dimY - 1), 0)
     # finished_img, xrange, yrange = next_step(finished_img, xrange, yrange, 1)
 
     count = 0
-    for (i,j) in finished_img:
-        if finished_img[(i,j)]:
+    for (i, j) in finished_img:
+        if finished_img[(i, j)]:
             count += 1
-
 
     return count
 
@@ -91,9 +90,8 @@ def part2(lines: List[str]):
     for y, l in enumerate(lines[2:]):
         x = 0
         for c in l:
-            img[(x,y)] = (c == "#")
+            img[(x, y)] = (c == "#")
             x += 1
-    
 
     def next_step(img: dict, xrange, yrange, zero_val):
 
@@ -118,9 +116,9 @@ def part2(lines: List[str]):
                     y_max = max(y_max, j)
                     # print(i,j)
 
-                    if (i,j) not in img:
+                    if (i, j) not in img:
                         bin_str += str(zero_val)
-                    elif not img[(i,j)]:
+                    elif not img[(i, j)]:
                         bin_str += "0"
                     else:
                         bin_str += "1"
@@ -128,27 +126,28 @@ def part2(lines: List[str]):
                 idx = int(bin_str, 2)
 
                 if img_map[idx] == "#":
-                    new_img[(x,y)] = True
+                    new_img[(x, y)] = True
                 else:
-                    new_img[(x,y)] = False
+                    new_img[(x, y)] = False
 
         return new_img, (x_min, x_max), (y_min, y_max)
 
-    
     xrange = (0, dimX - 1)
     yrange = (0, dimY - 1)
     finished_img = img
     z = 0
     for _ in range(50):
-        finished_img, xrange, yrange = next_step(finished_img, xrange, yrange, z)
+        finished_img, xrange, yrange = next_step(
+            finished_img, xrange, yrange, z)
         z = 1 - z
 
     count = 0
-    for (i,j) in finished_img:
-        if finished_img[(i,j)]:
+    for (i, j) in finished_img:
+        if finished_img[(i, j)]:
             count += 1
 
     return count
+
 
 # region Fetch Input and Run
 YEAR = 2021
@@ -243,9 +242,6 @@ def fetchPuzzleInput():
 
 
 if __name__ == "__main__":
-
-
-
 
     if len(argv) < 2:
         lines = fetchPuzzleInput()

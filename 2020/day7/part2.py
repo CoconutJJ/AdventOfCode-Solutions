@@ -14,6 +14,7 @@ def processRule(line: str):
 
     return bagType[0], bagContents
 
+
 with open("input.txt", "r") as f:
 
     graph = dict()
@@ -23,18 +24,16 @@ with open("input.txt", "r") as f:
         l = l.strip("\n")
 
         bag, contents = processRule(l)
-        
+
         graph[bag] = contents
 
     def bagCount(bag):
 
         currCount = 0
 
-        for (n,b) in graph[bag]:
+        for (n, b) in graph[bag]:
             currCount += n * bagCount(b) + n
-        
-        return currCount
-    
-    
-    print(bagCount("shiny gold"))
 
+        return currCount
+
+    print(bagCount("shiny gold"))

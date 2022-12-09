@@ -3,16 +3,18 @@ from sys import argv
 import requests
 import os
 
+
 def isBigCave(cave):
 
     return cave.upper() == cave
+
 
 def part1(lines: List[str]):
 
     adj_list = dict()
 
     for l in lines:
-        [s,t] = l.split("-")
+        [s, t] = l.split("-")
 
         if s not in adj_list:
             adj_list[s] = [t]
@@ -25,6 +27,7 @@ def part1(lines: List[str]):
             adj_list[t].append(s)
 
     paths = 0
+
     def rec(root, visited=set()):
         nonlocal paths
         new_visited = set(visited)
@@ -36,15 +39,13 @@ def part1(lines: List[str]):
             if isBigCave(cave):
                 rec(cave, new_visited)
                 continue
-            
+
             if cave not in new_visited:
                 new_visited.add(cave)
                 rec(cave, new_visited)
                 new_visited.remove(cave)
-        
 
     rec("start", set(["start"]))
-
 
     return paths
 
@@ -53,7 +54,7 @@ def part2(lines: List[str]):
     adj_list = dict()
 
     for l in lines:
-        [s,t] = l.split("-")
+        [s, t] = l.split("-")
 
         if s not in adj_list:
             adj_list[s] = [t]
@@ -66,11 +67,12 @@ def part2(lines: List[str]):
             adj_list[t].append(s)
 
     paths = 0
+
     def rec(root, visited=set(), smallCave=False):
         nonlocal paths
-        
+
         new_visited = set(visited)
-        
+
         if root == "end":
             paths += 1
             return
@@ -80,7 +82,7 @@ def part2(lines: List[str]):
             if isBigCave(cave):
                 rec(cave, new_visited, smallCave)
                 continue
-            
+
             if cave not in new_visited:
                 new_visited.add(cave)
                 rec(cave, new_visited, smallCave)
@@ -88,15 +90,15 @@ def part2(lines: List[str]):
             else:
                 if not smallCave and cave != "start":
                     rec(cave, new_visited, True)
-                
+
     rec("start", set(["start"]))
 
     return paths
 
 
-
 # region Fetch Input and Run
 YEAR = 2021
+
 
 def sessionKey():
     """
@@ -110,17 +112,18 @@ def sessionKey():
         if curr == "/":
             print("Could not find SESSION file!")
             exit(1)
-    
+
     key = open("SESSION", "r")
     os.chdir(cwd)
     return key.read().strip("\n")
+
 
 def prompt(message):
     while True:
         try:
             inp = input(message)
             inp = inp.strip("\n")
-            
+
             if inp == "q":
                 os._exit(0)
 
@@ -164,11 +167,11 @@ def fetchPuzzleInput():
     if dayNo is None:
         for dayNo in prompt("Error parsing day number. Please enter the day number: "):
             try:
-                dayNo = int(dayNo)                
+                dayNo = int(dayNo)
             except:
                 print("Invalid Day Number")
                 continue
-            
+
             break
 
     URL = "https://adventofcode.com/%d/day/%d/input" % (YEAR, dayNo)

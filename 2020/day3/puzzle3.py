@@ -10,10 +10,10 @@ with open("input.txt", "r") as f:
 
         if l[x] == "#":
             trees += 1
-        
+
         x = (x + 1) % len(l)
         y = y + 2
 
     print(trees)
-    
+
 # 82, 242, 71, 67, 24

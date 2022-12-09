@@ -19,5 +19,5 @@ with open("input.txt") as f:
 
             print(numbers[sumIndex[k] + 1: i+1])
             break
-        
+
         currNumbers.add(prefixSum[i])

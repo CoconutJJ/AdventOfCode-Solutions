@@ -69,16 +69,16 @@ def part1(lines: List[str]):
 
     return len(on_cubes)
 
+
 def volume(cube):
 
     vol = 1
 
-    for (s,t) in cube:
+    for (s, t) in cube:
 
         vol *= (t - s + 1)
-    
-    return vol
 
+    return vol
 
 
 def intersect(i1, i2):
@@ -125,37 +125,29 @@ def part2(lines: List[str]):
 
         all_ranges.append((state, ((x1, x2), (y1, y2), (z1, z2))))
 
-
     counts = dict()
 
     for [state, q] in all_ranges:
-        overlaps = []        
+        overlaps = []
         for c in counts:
 
             o = overlap(q, c)
-            
+
             if o is None:
                 continue
             overlaps.append(o)
-        
+
         for v in overlaps:
             counts[v] = -1
-        
+
         counts[q] = 1
-            
-
-
-
 
     total_vol = 0
     for cube in counts:
         print(volume(cube))
         total_vol += volume(cube) * counts[cube]
-    
+
     return total_vol
-
-
-
 
 
 # region Fetch Input and Run

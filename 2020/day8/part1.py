@@ -11,16 +11,16 @@ def runProgram(instructions, ip=0):
         if ins == "jmp":
             ip += n
             continue
-        
+
         if ins == "acc":
             acc += n
             ip += 1
             continue
-        
+
         if ins == "nop":
             ip += 1
             continue
-        
+
     return
 
 
@@ -31,9 +31,8 @@ def runProgramEnd(instructions, ip):
         if ip in ipset:
             return False
         ipset.add(ip)
-    
-    return True
 
+    return True
 
 
 with open("input.txt", "r") as f:
@@ -50,7 +49,7 @@ with open("input.txt", "r") as f:
         ins, n = l.split(" ")
 
         instructions.append((ins, int(n)))
-    
+
     instructions[277] = ("nop", 0)
 
     for (ip, acc) in runProgram(instructions):

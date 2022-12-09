@@ -1,6 +1,7 @@
 from typing import List
 import sys
 
+
 class Board:
 
     def __init__(self, boardRows: List[List[int]]) -> None:
@@ -30,8 +31,8 @@ class Board:
         for i in range(len(self.rows)):
             for j in range(len(self.rows[i])):
 
-                if not self.marked.get((i,j), False):
-                    total += self.idx(i,j)
+                if not self.marked.get((i, j), False):
+                    total += self.idx(i, j)
 
         return total * lastNum
 
@@ -65,10 +66,9 @@ for l in lines[1:]:
 
     if len(l) == 0:
         continue
-    
+
     l = l.split(" ")
     l = [int(j) for j in l if len(j) > 0]
-
 
     rows.append(l)
 

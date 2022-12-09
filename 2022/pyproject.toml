@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "2022"
+version = "0.1.0"
+description = ""
+authors = ["David Yue <davidyue5819@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[tool.poetry.group.dev.dependencies]
+autopep8 = "^2.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

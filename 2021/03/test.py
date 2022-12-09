@@ -5,12 +5,11 @@ Olines = lines
 CO2lines = lines
 
 
-
 for i in range(0, 12):
     bits = {0: 0, 1: 0}
 
     for num in lines:
-        
+
         c = int(num[i])
         bits[c] += 1
 
@@ -26,14 +25,14 @@ for i in range(0, 12):
 
     if len(CO2lines) > 1:
         new_lines = []
-        
+
         for line in CO2lines:
             if line[i] == CO2:
                 new_lines.append(line)
-        
+
         CO2lines = new_lines
 
-print (Olines, CO2lines)
+print(Olines, CO2lines)
 ans = int(Olines[0], 2) * int(CO2lines[0], 2)
 
 print(ans)

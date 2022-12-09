@@ -24,8 +24,8 @@ with open("input.txt", "r") as f:
         l = l.strip("\n")
 
         bag, contents = processRule(l)
-        
-        for (n,b) in contents:
+
+        for (n, b) in contents:
             if b not in graph:
                 graph[b] = set([bag])
             else:
@@ -38,7 +38,7 @@ with open("input.txt", "r") as f:
     while len(q) != 0:
 
         bag = q.pop()
-        
+
         if bag not in graph:
             continue
 
@@ -46,6 +46,5 @@ with open("input.txt", "r") as f:
             if b not in bags:
                 bags.add(b)
                 q.append(b)
-    
-    print(len(bags))
 
+    print(len(bags))

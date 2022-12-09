@@ -3,6 +3,7 @@ from sys import argv
 import requests
 import os
 
+
 def memoSoln(lines: List[str]):
     rules = dict()
 
@@ -11,14 +12,13 @@ def memoSoln(lines: List[str]):
         s, t = l.split(" -> ")
 
         rules[s] = t
-    
+
     template = lines[0]
 
     mem = dict()
 
-
     def rec(pattern, step):
-        
+
         if step == 0:
             return dict()
 
@@ -28,23 +28,23 @@ def memoSoln(lines: List[str]):
             p1 = pattern[0] + c
             p2 = c + pattern[1]
 
-            freq1 = rec(p1, step - 1) 
+            freq1 = rec(p1, step - 1)
             freq2 = rec(p2, step - 1)
 
             freq = dict()
 
             for k in freq1:
                 freq[k] = freq1[k]
-            
+
             for k in freq2:
                 freq[k] = freq.get(k, 0) + freq2[k]
-            
+
             freq[c] = freq.get(c, 0) + 1
 
             mem[(pattern, step)] = freq
 
         return mem[(pattern, step)]
-    
+
     total = dict()
 
     for c in template:
@@ -56,9 +56,8 @@ def memoSoln(lines: List[str]):
 
         for k in freq:
             total[k] = total.get(k, 0) + freq[k]
-    
+
     return total
-    
 
 
 def part1(lines: List[str]):
@@ -146,6 +145,7 @@ def part2(lines: List[str]):
         minFreq = min(minFreq, freq[c])
 
     return maxFreq - minFreq
+
 
 # region Fetch Input and Run
 YEAR = 2021
@@ -243,7 +243,7 @@ def fetchPuzzleInput():
 
 
 if __name__ == "__main__":
-    
+
     if len(argv) < 2:
         lines = fetchPuzzleInput()
     else:

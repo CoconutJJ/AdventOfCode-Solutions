@@ -5,6 +5,8 @@ import os
 from itertools import permutations
 DIE = 1
 nRolls = 0
+
+
 def rollDie():
     global DIE
     global nRolls
@@ -29,8 +31,8 @@ def part1(lines: List[str]):
     p1 = int(p1)
     p2 = int(p2)
 
-    positions =[p1 - 1, p2 - 1]
-    scores = [0,0]
+    positions = [p1 - 1, p2 - 1]
+    scores = [0, 0]
     turn = 0
     while True:
         positions[turn] = (positions[turn] + roll()) % 10
@@ -38,11 +40,10 @@ def part1(lines: List[str]):
         print(scores)
 
         if scores[turn] >= 1000:
-            print (nRolls)
+            print(nRolls)
             return scores[1-turn] * (nRolls)
-        
-        turn = 1- turn
 
+        turn = 1 - turn
 
 
 def part2(lines: List[str]):
@@ -63,39 +64,39 @@ def part2(lines: List[str]):
 
             if turn == 0:
 
-                u,v = 0, 0
-                for rolls in set(permutations([1,1,1,2,2,2,3,3,3], 3)):
+                u, v = 0, 0
+                for rolls in set(permutations([1, 1, 1, 2, 2, 2, 3, 3, 3], 3)):
 
                     new_p1_pos = (p1 + sum(rolls)) % 10
                     new_p1_score = p1Score + new_p1_pos + 1
 
-                    s,t = rec(new_p1_pos, new_p1_score, p2, p2Score, 1)
-                    
+                    s, t = rec(new_p1_pos, new_p1_score, p2, p2Score, 1)
+
                     u = u + s
                     v = v + t
-                mem[(p1, p1Score, p2, p2Score, turn)] = (u,v)
+                mem[(p1, p1Score, p2, p2Score, turn)] = (u, v)
             else:
-                u,v = 0, 0
-                for rolls in set(permutations([1,1,1,2,2,2,3,3,3], 3)):
+                u, v = 0, 0
+                for rolls in set(permutations([1, 1, 1, 2, 2, 2, 3, 3, 3], 3)):
 
                     new_p2_pos = (p2 + sum(rolls)) % 10
                     new_p2_score = p2Score + new_p2_pos + 1
 
-                    s,t = rec(p1, p1Score, new_p2_pos, new_p2_score, 0)
-                    
+                    s, t = rec(p1, p1Score, new_p2_pos, new_p2_score, 0)
+
                     u = u + s
                     v = v + t
 
-                mem[(p1, p1Score, p2, p2Score, turn)] = (u,v)
-        
+                mem[(p1, p1Score, p2, p2Score, turn)] = (u, v)
+
         return mem[(p1, p1Score, p2, p2Score, turn)]
 
     return rec(p1 - 1, 0, p2 - 1, 0, 0)
 
 
-
 # region Fetch Input and Run
 YEAR = 2021
+
 
 def sessionKey():
     """
@@ -109,26 +110,26 @@ def sessionKey():
         if curr == "/":
             print("Could not find SESSION file!")
             exit(1)
-    
+
     key = open("SESSION", "r")
     os.chdir(cwd)
     return key.read().strip("\n")
 
+
 def prompt(message):
     while True:
-        
+
         inp = input(message)
         inp = inp.strip("\n")
-        
+
         if inp == "q":
             os._exit(0)
 
         if inp is None or len(inp) == 0:
             print("invalid input: type q to quit")
             continue
-        
-        yield inp
 
+        yield inp
 
 
 def fetchPuzzleInput():
@@ -161,11 +162,11 @@ def fetchPuzzleInput():
     if dayNo is None:
         for dayNo in prompt("Error parsing day number. Please enter the day number: "):
             try:
-                dayNo = int(dayNo)                
+                dayNo = int(dayNo)
             except:
                 print("Invalid Day Number")
                 continue
-            
+
             break
 
     URL = "https://adventofcode.com/%d/day/%d/input" % (YEAR, dayNo)

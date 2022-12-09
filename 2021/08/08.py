@@ -14,6 +14,7 @@ mapping = {
     "abcdfg": 9
 }
 
+
 def part1(lines: List[str]):
 
     count = 0
@@ -28,7 +29,6 @@ def part1(lines: List[str]):
     return count
 
 
-
 def findMatching(perm: List[str], signals):
 
     if len(perm) == 7:
@@ -41,7 +41,7 @@ def findMatching(perm: List[str], signals):
 
             if new_map not in mapping:
                 return []
-        
+
         return perm
     else:
         for c in "abcdefg":
@@ -51,10 +51,11 @@ def findMatching(perm: List[str], signals):
 
                 if len(soln) > 0:
                     return soln
-                
+
                 perm = perm[:-1]
 
         return []
+
 
 def part2(lines: List[str]):
 
@@ -73,13 +74,10 @@ def part2(lines: List[str]):
                 new_map += "abcdefg"[perm.index(c)]
 
             num += str(mapping["".join(sorted(new_map))])
-            
+
         total += int(num)
 
     return total
-            
-
-
 
 
 if __name__ == "__main__":

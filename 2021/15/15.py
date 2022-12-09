@@ -53,17 +53,17 @@ def part1(lines: List[str]):
     for l in lines:
         grid.append([int(c) for c in l])
 
-    def cost(i,j):
+    def cost(i, j):
         return grid[j][i]
 
     return djikstra(len(grid[0]), len(grid), cost)
+
 
 def part2(lines: List[str]):
     grid = []
 
     for l in lines:
         grid.append([int(c) for c in l])
-
 
     def calcRiskLevel(i, j):
 

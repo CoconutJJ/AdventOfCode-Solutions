@@ -15,6 +15,7 @@ def part2(lines: List[str]):
 # region Fetch Input and Run
 YEAR = 2022
 
+
 def sessionKey():
     """
         Move up the dir. tree until we see a file named SESSION. Then read
@@ -27,26 +28,26 @@ def sessionKey():
         if curr == "/":
             print("Could not find SESSION file!")
             exit(1)
-    
+
     key = open("SESSION", "r")
     os.chdir(cwd)
     return key.read().strip("\n")
 
+
 def prompt(message):
     while True:
-        
+
         inp = input(message)
         inp = inp.strip("\n")
-        
+
         if inp == "q":
             os._exit(0)
 
         if inp is None or len(inp) == 0:
             print("invalid input: type q to quit")
             continue
-        
-        yield inp
 
+        yield inp
 
 
 def fetchPuzzleInput():
@@ -79,11 +80,11 @@ def fetchPuzzleInput():
     if dayNo is None:
         for dayNo in prompt("Error parsing day number. Please enter the day number: "):
             try:
-                dayNo = int(dayNo)                
+                dayNo = int(dayNo)
             except:
                 print("Invalid Day Number")
                 continue
-            
+
             break
 
     URL = "https://adventofcode.com/%d/day/%d/input" % (YEAR, dayNo)

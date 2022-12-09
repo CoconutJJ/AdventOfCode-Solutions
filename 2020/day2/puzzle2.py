@@ -19,9 +19,8 @@ with open("input.txt", "r") as f:
 
         if password[lb - 1] == ch and password[up - 1] == ch:
             continue
-        
+
         if password[lb - 1] == ch or password[up - 1] == ch:
             n += 1
 
-    
     print(n)

@@ -21,7 +21,7 @@ class Navigator:
             self.compose(self.rotateCounterClockwise,
                          self.rotateCounterClockwise)
         )(x, y)
- 
+
     def compose(self, f, g):
 
         return lambda *args: f(*g(*args))

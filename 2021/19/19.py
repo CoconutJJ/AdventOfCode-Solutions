@@ -2,12 +2,13 @@ from sys import argv
 import requests
 import os
 
+
 class Map:
 
     def __init__(self) -> None:
         self.beacons = set()
         self.scanners = []
-        
+
     def add_beacon(self, coord):
         self.beacons.add(coord)
 
@@ -22,7 +23,7 @@ class Map:
                  (1, -1, -1), (1, -1, 1), (1, 1, -1), (1, 1, 1)]
 
         orientations = []
-        for (x,y,z) in rotations:
+        for (x, y, z) in rotations:
             for (i, j, k) in signs:
                 orientations.append((x * i, y * j, z * k))
 
@@ -84,11 +85,11 @@ class Map:
         return False
 
     def intialize_beacons(self, coords: list[tuple[int, int, int]]):
-        self.scanners.append((0,0,0))
+        self.scanners.append((0, 0, 0))
         for c in coords:
             self.beacons.add(c)
-    
-    def stitch_map(self, scanner_coords: list[list[tuple[int,int,int]]]):
+
+    def stitch_map(self, scanner_coords: list[list[tuple[int, int, int]]]):
         self.intialize_beacons(scanner_coords[0])
         coords_left = scanner_coords[1:]
         while len(coords_left) > 0:
@@ -97,20 +98,22 @@ class Map:
 
             if self.match_beacons(c):
                 continue
-            
+
             coords_left.append(c)
-        
-    def greatest_manhattan_distance(self, scanner_coords: list[list[tuple[int,int,int]]]):
+
+    def greatest_manhattan_distance(self, scanner_coords: list[list[tuple[int, int, int]]]):
         self.stitch_map(scanner_coords)
 
         max_manhattan_dist = 0
         for u in self.scanners:
             for v in self.scanners:
-                i,j,k = self.sub_vec(u,v)
-                max_manhattan_dist = max(max_manhattan_dist, abs(i) + abs(j) + abs(k))
+                i, j, k = self.sub_vec(u, v)
+                max_manhattan_dist = max(
+                    max_manhattan_dist, abs(i) + abs(j) + abs(k))
 
         return max_manhattan_dist
-        
+
+
 def part1(lines: list[str]):
     scanner_coords = []
     coords = None

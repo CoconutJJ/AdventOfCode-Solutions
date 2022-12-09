@@ -4,7 +4,7 @@ import requests
 import os
 
 
-def velocity_next(x,y):
+def velocity_next(x, y):
 
     if x < 0:
         x = x + 1
@@ -13,27 +13,29 @@ def velocity_next(x,y):
 
     y = y - 1
 
-    return (x,y)
+    return (x, y)
+
 
 def within_area(x_range, y_range, coord):
 
     x1, x2 = x_range
     y1, y2 = y_range
 
-    x,y = coord
+    x, y = coord
 
-    return (min(x1,x2) <= x <= max(x1,x2)) and (min(y1,y2) <= y <= max(y1,y2))
+    return (min(x1, x2) <= x <= max(x1, x2)) and (min(y1, y2) <= y <= max(y1, y2))
 
 
 def velocities(maxX, maxY):
 
     for x in range(-maxX, maxX + 1):
         for y in range(-maxY, maxY + 1):
-            yield (x,y)
+            yield (x, y)
+
 
 def run_sim(velocity, x_range, y_range):
 
-    pos = (0,0)
+    pos = (0, 0)
     dx, dy = velocity
 
     x1, x2 = x_range
@@ -41,15 +43,15 @@ def run_sim(velocity, x_range, y_range):
     y1, y2 = y_range
 
     maxY = float('-inf')
-    
+
     px, py = pos
 
     while True:
 
         maxY = max(py, maxY)
 
-        px,py = px + dx, py + dy
-        
+        px, py = px + dx, py + dy
+
         if within_area(x_range, y_range, (px, py)):
             return True, maxY
 
@@ -59,17 +61,13 @@ def run_sim(velocity, x_range, y_range):
         # if dx > 0 and px > max(x1,x2):
         #     return False, maxY
 
-        if dx == 0 and py < min(y1,y2):
+        if dx == 0 and py < min(y1, y2):
             return False, maxY
-        
-        dx,dy = velocity_next(dx,dy)
 
-        
-
+        dx, dy = velocity_next(dx, dy)
 
 
 def part1():
-
 
     x_lower = 79
     x_upper = 137
@@ -78,14 +76,12 @@ def part1():
     y_upper = -117
 
     maxY = float('-inf')
-    for vx,vy in velocities(max(abs(x_lower), abs(x_upper)), max(abs(y_lower), abs(y_upper))):
-        success, y = run_sim((vx,vy), (x_lower, x_upper), (y_lower, y_upper))
+    for vx, vy in velocities(max(abs(x_lower), abs(x_upper)), max(abs(y_lower), abs(y_upper))):
+        success, y = run_sim((vx, vy), (x_lower, x_upper), (y_lower, y_upper))
         if success:
             maxY = max(maxY, y)
 
     return maxY
-
-
 
 
 # def part2(lines: List[str]):
@@ -122,7 +118,7 @@ def part1():
 #         if curr == "/":
 #             print("Could not find SESSION file!")
 #             exit(1)
-    
+
 #     key = open("SESSION", "r")
 #     os.chdir(cwd)
 #     return key.read().strip("\n")
@@ -132,7 +128,7 @@ def part1():
 #         try:
 #             inp = input(message)
 #             inp = inp.strip("\n")
-            
+
 #             if inp == "q":
 #                 os._exit(0)
 
@@ -176,11 +172,11 @@ def part1():
 #     if dayNo is None:
 #         for dayNo in prompt("Error parsing day number. Please enter the day number: "):
 #             try:
-#                 dayNo = int(dayNo)                
+#                 dayNo = int(dayNo)
 #             except:
 #                 print("Invalid Day Number")
 #                 continue
-            
+
 #             break
 
 #     URL = "https://adventofcode.com/%d/day/%d/input" % (YEAR, dayNo)
@@ -198,8 +194,6 @@ def part1():
 #     lines = [r.strip("\n") for r in lines]
 
 #     return lines
-
-
 if __name__ == "__main__":
     print(part1())
     # if len(argv) < 2:

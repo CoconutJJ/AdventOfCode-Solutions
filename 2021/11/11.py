@@ -63,7 +63,7 @@ def part1(lines: List[str]):
         totalFlashes += flashes
 
     print("\n".join([str(g) for g in grid]))
-    
+
     return totalFlashes
 
 

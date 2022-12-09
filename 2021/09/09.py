@@ -4,10 +4,12 @@ import requests
 import os
 from random import randint
 
+
 def inputGenerator():
     for _ in range(100):
         row = [str(randint(0, 9)) for _ in range(100)]
         print("".join(row))
+
 
 def part1(lines: List[str]):
 
@@ -60,9 +62,9 @@ def part2(lines: List[str]):
 
     def bfs(i, j):
 
-        q = [(i, j)]    
+        q = [(i, j)]
         visited = set()
-        visited.add((i,j))
+        visited.add((i, j))
         size = 1
         while len(q) != 0:
 
@@ -72,9 +74,9 @@ def part2(lines: List[str]):
 
                 if (grid[x][y] < grid[s][t]) and ((s, t) not in visited) and (grid[s][t] != 9):
                     q.append((s, t))
-                    visited.add((s,t))
+                    visited.add((s, t))
                     size += 1
-        
+
         return size
 
     top3 = []
@@ -83,7 +85,7 @@ def part2(lines: List[str]):
         for j in range(len(grid[i])):
 
             isLowPoint = True
-            for x,y in neighbours(i,j):
+            for x, y in neighbours(i, j):
                 if grid[i][j] >= grid[x][y]:
                     isLowPoint = False
 
@@ -91,14 +93,16 @@ def part2(lines: List[str]):
                 continue
 
             if grid[i][j] != 9:
-                top3.append(bfs(i,j))
-            
+                top3.append(bfs(i, j))
+
     top3.sort(reverse=True)
 
     return top3
 
+
 # region Fetch Input and Run
 YEAR = 2021
+
 
 def sessionKey():
     cwd = os.getcwd()
@@ -108,10 +112,11 @@ def sessionKey():
         if curr == "/":
             print("Could not find SESSION file!")
             exit(1)
-    
+
     key = open("SESSION", "r")
     os.chdir(cwd)
     return key.read().strip("\n")
+
 
 def fetchPuzzleInput():
     print("Fetching puzzle input...")
