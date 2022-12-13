@@ -1,139 +1,110 @@
-from typing import List
-from sys import argv
-import requests
-import os
+from aoc import AdventOfCode
 
 
-def part1(lines: List[str]):
-    pass
+class CRT:
+
+    def __init__(self, instructions: list[tuple[str, int]]) -> None:
+        self.X = 1
+        self.instructions = instructions
+        self.cycle = 0
+        self.ip = 0
+        self.screen = [["." for _ in range(40)] for _ in range(6)]
+        self.pixel = 0
+
+    def draw_pixel(self):
+
+        x = self.pixel % 40
+        y = self.pixel // 40
+
+        if self.X - 1 <= x <= self.X + 1:
+            self.screen[y][x] = '#'
+
+        self.pixel = (self.pixel + 1) % (40 * 6)
+
+    def exec(self):
+
+        while self.ip < len(self.instructions):
+            self.cycle += 1
+            match self.instructions[self.ip]:
+                case ("addx", d):
+                    yield (self.cycle, self.X)
+                    self.draw_pixel()
+                    self.cycle += 1
+                    yield (self.cycle, self.X)
+                    self.draw_pixel()
+                    self.X += d
+                case ("noop", _):
+                    yield (self.cycle, self.X)
+                    self.draw_pixel()
+                    
+
+            self.ip += 1
+
+        return True
 
 
-def part2(lines: List[str]):
-    pass
+def part1(lines: list[str]):
 
+    ins = []
 
-# region Fetch Input and Run
-YEAR = 2022
+    for l in lines:
 
-
-def sessionKey():
-    """
-        Move up the dir. tree until we see a file named SESSION. Then read
-        the session key.
-    """
-    cwd = os.getcwd()
-    curr = cwd
-    while not os.path.exists("SESSION"):
-        os.chdir(curr := os.path.join(curr, ".."))
-        if curr == "/":
-            print("Could not find SESSION file!")
-            exit(1)
-
-    key = open("SESSION", "r")
-    os.chdir(cwd)
-    return key.read().strip("\n")
-
-
-def prompt(message):
-    while True:
-
-        inp = input(message)
-        inp = inp.strip("\n")
-
-        if inp == "q":
-            os._exit(0)
-
-        if inp is None or len(inp) == 0:
-            print("invalid input: type q to quit")
-            continue
-
-        yield inp
-
-
-def fetchPuzzleInput():
-    """
-
-    """
-    print("Fetching puzzle input...")
-
-    if os.path.isfile("input.txt"):
-        print("Using cached input...")
-        fp = open("input.txt", "r")
-        lines = fp.readlines()
-        lines = [r.strip("\n") for r in lines]
-        return lines
-
-    s = requests.Session()
-
-    s.cookies.set("session", sessionKey(), domain=".adventofcode.com")
-
-    filename, _ = argv[0].split(".")
-
-    dayNo = None
-
-    if filename.startswith("day"):
-        try:
-            dayNo = int(filename[3:])
-        except:
-            dayNo = None
-
-    if dayNo is None:
-        for dayNo in prompt("Error parsing day number. Please enter the day number: "):
-            try:
-                dayNo = int(dayNo)
-            except:
-                print("Invalid Day Number")
-                continue
-
-            break
-
-    URL = "https://adventofcode.com/%d/day/%d/input" % (YEAR, dayNo)
-
-    # pretend to be linux firefox...
-    body = s.get(URL, headers={
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0"
-    })
-
-    fp = open("input.txt", "w")
-    fp.write(body.content.decode("utf-8"))
-    fp.close()
-
-    lines = body.content.decode("utf-8").splitlines()
-    lines = [r.strip("\n") for r in lines]
-
-    return lines
-
-
-if __name__ == "__main__":
-
-    if len(argv) < 2:
-        lines = fetchPuzzleInput()
-    else:
-        fp = open(argv[1], "r")
-        lines = fp.readlines()
-        lines = [r.strip("\n") for r in lines]
-
-    for part in prompt("Which part to run ? [1 (default)/2]: "):
-
-        part = part.strip("\n")
-
-        if len(part) == 0:
-            print(part1(lines))
-            break
-
-        try:
-            part = int(part)
-        except:
-            print("Invalid part number")
-            continue
-
-        if part == 1:
-            print(part1(lines))
-        elif part == 2:
-            print(part2(lines))
+        if l == "noop":
+            ins.append(("noop", 0))
         else:
-            print("Invalid part number")
-            continue
+            i, v = l.split(" ")
 
-        break
-# endregion
+            ins.append((i, int(v)))
+
+    crt = CRT(ins)
+    total = 0
+    for cycle, X in crt.exec():
+        # print(cycle, X)
+        # print(cycle)
+        match cycle:
+            case 20:
+                # print(cycle, X)
+                total += cycle * X
+            case 60:
+                # print(cycle, X)
+                total += cycle * X
+            case 100:
+                # print(cycle, X)
+                total += cycle * X
+            case 140:
+                # print(cycle, X)
+                total += cycle * X
+            case 180:
+                # print(cycle, X)
+                total += cycle * X
+            case 220:
+                # print(cycle, X)
+                total += cycle * X
+
+    return total
+
+
+def part2(lines: list[str]):
+
+    ins = []
+
+    for l in lines:
+
+        if l == "noop":
+            ins.append(("noop", 0))
+        else:
+            i, v = l.split(" ")
+
+            ins.append((i, int(v)))
+
+    crt = CRT(ins)
+    total = 0
+    for cycle, X in crt.exec():
+        continue
+
+    screen = "\n".join(["".join(l) for l in crt.screen])
+
+    return screen
+
+
+AdventOfCode(part1, part2).exec()

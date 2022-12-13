@@ -1,139 +1,153 @@
-from typing import List
-from sys import argv
-import requests
-import os
+from aoc import AdventOfCode
+from heapq import heappush, heappop
 
 
-def part1(lines: List[str]):
-    pass
+def get_elevation(c: str):
+
+    if c == "S":
+        return 0
+
+    if c == "E":
+        return ord('z') - ord('a')
+
+    return ord(c) - ord('a')
 
 
-def part2(lines: List[str]):
-    pass
+def cost(a, b):
+
+    a_el = get_elevation(a)
+    b_el = get_elevation(b)
+
+    if b_el <= a_el + 1:
+        return 1
+
+    return float('inf')
 
 
-# region Fetch Input and Run
-YEAR = 2022
+def neigbours(coord: tuple[int, int], y_len, x_len):
 
+    x, y = coord
 
-def sessionKey():
-    """
-        Move up the dir. tree until we see a file named SESSION. Then read
-        the session key.
-    """
-    cwd = os.getcwd()
-    curr = cwd
-    while not os.path.exists("SESSION"):
-        os.chdir(curr := os.path.join(curr, ".."))
-        if curr == "/":
-            print("Could not find SESSION file!")
-            exit(1)
+    vecs = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 
-    key = open("SESSION", "r")
-    os.chdir(cwd)
-    return key.read().strip("\n")
+    for dx, dy in vecs:
 
-
-def prompt(message):
-    while True:
-
-        inp = input(message)
-        inp = inp.strip("\n")
-
-        if inp == "q":
-            os._exit(0)
-
-        if inp is None or len(inp) == 0:
-            print("invalid input: type q to quit")
+        if x + dx < 0:
             continue
 
-        yield inp
+        if x + dx >= x_len:
+            continue
+
+        if y + dy < 0:
+            continue
+
+        if y + dy >= y_len:
+            continue
+
+        yield (x + dx, y + dy)
+
+    return
 
 
-def fetchPuzzleInput():
-    """
+def djikstra(grid: list[list[str]], start: tuple[int, int]):
 
-    """
-    print("Fetching puzzle input...")
+    x, y = start
 
-    if os.path.isfile("input.txt"):
-        print("Using cached input...")
-        fp = open("input.txt", "r")
-        lines = fp.readlines()
-        lines = [r.strip("\n") for r in lines]
-        return lines
+    pq = [(0, start)]
 
-    s = requests.Session()
+    visited = set()
 
-    s.cookies.set("session", sessionKey(), domain=".adventofcode.com")
+    grid_size = len(grid) * len(grid[0])
 
-    filename, _ = argv[0].split(".")
+    dist = dict()
+    prev = dict()
+    # print(grid_size)
+    while len(visited) != grid_size:
 
-    dayNo = None
+        _, (x, y) = heappop(pq)
+        visited.add((x, y))
+        # print (len(visited))
+        dist[(x, y)] = 0
 
-    if filename.startswith("day"):
-        try:
-            dayNo = int(filename[3:])
-        except:
-            dayNo = None
+        for nx, ny in neigbours((x, y), len(grid), len(grid[0])):
 
-    if dayNo is None:
-        for dayNo in prompt("Error parsing day number. Please enter the day number: "):
-            try:
-                dayNo = int(dayNo)
-            except:
-                print("Invalid Day Number")
+            if (nx, ny) in visited:
                 continue
 
-            break
+            new_cost = dist[(x, y)] + cost(grid[y][x], grid[ny][nx])
 
-    URL = "https://adventofcode.com/%d/day/%d/input" % (YEAR, dayNo)
+            if (nx, ny) not in dist:
+                dist[(nx, ny)] = float('inf')
 
-    # pretend to be linux firefox...
-    body = s.get(URL, headers={
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0"
-    })
+            if new_cost < dist[(nx, ny)]:
 
-    fp = open("input.txt", "w")
-    fp.write(body.content.decode("utf-8"))
-    fp.close()
+                dist[(nx, ny)] = new_cost
 
-    lines = body.content.decode("utf-8").splitlines()
-    lines = [r.strip("\n") for r in lines]
+                prev[(nx, ny)] = (x, y)
 
-    return lines
+            heappush(pq, (dist[(nx, ny)], (nx, ny)))
+
+    return prev
 
 
-if __name__ == "__main__":
+def bfs(grid: list[list[str]], start: tuple[int, int]):
 
-    if len(argv) < 2:
-        lines = fetchPuzzleInput()
-    else:
-        fp = open(argv[1], "r")
-        lines = fp.readlines()
-        lines = [r.strip("\n") for r in lines]
+    q = [(start, 0)]
+    visited = set()
+    min_dist = float('inf')
+    visited.add(start)
+    while len(q) != 0:
 
-    for part in prompt("Which part to run ? [1 (default)/2]: "):
+        (x, y), steps = q.pop(0)
 
-        part = part.strip("\n")
-
-        if len(part) == 0:
-            print(part1(lines))
-            break
-
-        try:
-            part = int(part)
-        except:
-            print("Invalid part number")
+        if grid[y][x] == "E":
+            min_dist = min(min_dist, steps)
             continue
 
-        if part == 1:
-            print(part1(lines))
-        elif part == 2:
-            print(part2(lines))
-        else:
-            print("Invalid part number")
-            continue
+        for nx, ny in neigbours((x, y), len(grid), len(grid[0])):
 
-        break
-# endregion
+            if (nx, ny) in visited:
+                continue
+
+            if cost(grid[y][x], grid[ny][nx]) == 1:
+                visited.add((nx, ny))
+                q.append(((nx, ny), steps + 1))
+
+    return min_dist
+
+
+def part1(lines: list[str]):
+
+    grid = [[c for c in l] for l in lines]
+
+    start = None
+    end = None
+
+    for y in range(len(grid)):
+        for x in range(len(grid[0])):
+
+            if grid[y][x] == "S":
+                start = (x, y)
+            elif grid[y][x] == "E":
+                end = (x, y)
+
+    return bfs(grid, start)
+
+
+def part2(lines: list[str]):
+    grid = [[c for c in l] for l in lines]
+
+    start = None
+    end = None
+    min_dist = float('inf')
+    for y in range(len(grid)):
+        for x in range(len(grid[0])):
+
+            if grid[y][x] == "a":
+                min_dist = min(min_dist, bfs(grid, (x, y)))
+                print(x, y)
+
+    return min_dist
+
+
+AdventOfCode(part1, part2).exec()

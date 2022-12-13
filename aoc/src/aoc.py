@@ -26,7 +26,7 @@ class AdventOfCode:
         if len(argv) < 2:
             lines = self._fetchPuzzleInput()
         else:
-            fp = open(argv[0], "r")
+            fp = open(argv[1], "r")
             lines = fp.readlines()
             lines = [r.strip("\n") for r in lines]
 
