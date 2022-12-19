@@ -36,7 +36,6 @@ class CRT:
                 case ("noop", _):
                     yield (self.cycle, self.X)
                     self.draw_pixel()
-                    
 
             self.ip += 1
 

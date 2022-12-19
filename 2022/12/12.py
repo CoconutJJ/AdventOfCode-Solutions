@@ -49,7 +49,7 @@ def neigbours(coord: tuple[int, int], y_len, x_len):
     return
 
 
-def djikstra(grid: list[list[str]], start: tuple[int, int]):
+def dijkstra(grid: list[list[str]], start: tuple[int, int]):
 
     x, y = start
 

@@ -1,139 +1,121 @@
-from typing import List
-from sys import argv
-import requests
-import os
+from aoc import AdventOfCode
+from re import compile, match
+
+ROW_Y = 2000000
 
 
-def part1(lines: List[str]):
-    pass
+def get_interval(scanner: tuple[int, int], beacon: tuple[int, int], row: int):
+
+    sx, sy = scanner
+    bx, by = beacon
+
+    M = abs(bx - sx) + abs(by - sy)
+
+    a = abs(row - sy) - M + sx
+    b = M - abs(row - sy) + sx
+
+    if a > b:
+        return None
+
+    return (a, b)
 
 
-def part2(lines: List[str]):
-    pass
+def merge(s: tuple[int, int], t: tuple[int, int]):
 
+    sx, sy = s
+    tx, ty = t
 
-# region Fetch Input and Run
-YEAR = 2022
-
-
-def sessionKey():
-    """
-        Move up the dir. tree until we see a file named SESSION. Then read
-        the session key.
-    """
-    cwd = os.getcwd()
-    curr = cwd
-    while not os.path.exists("SESSION"):
-        os.chdir(curr := os.path.join(curr, ".."))
-        if curr == "/":
-            print("Could not find SESSION file!")
-            exit(1)
-
-    key = open("SESSION", "r")
-    os.chdir(cwd)
-    return key.read().strip("\n")
-
-
-def prompt(message):
-    while True:
-
-        inp = input(message)
-        inp = inp.strip("\n")
-
-        if inp == "q":
-            os._exit(0)
-
-        if inp is None or len(inp) == 0:
-            print("invalid input: type q to quit")
-            continue
-
-        yield inp
-
-
-def fetchPuzzleInput():
-    """
-
-    """
-    print("Fetching puzzle input...")
-
-    if os.path.isfile("input.txt"):
-        print("Using cached input...")
-        fp = open("input.txt", "r")
-        lines = fp.readlines()
-        lines = [r.strip("\n") for r in lines]
-        return lines
-
-    s = requests.Session()
-
-    s.cookies.set("session", sessionKey(), domain=".adventofcode.com")
-
-    filename, _ = argv[0].split(".")
-
-    dayNo = None
-
-    if filename.startswith("day"):
-        try:
-            dayNo = int(filename[3:])
-        except:
-            dayNo = None
-
-    if dayNo is None:
-        for dayNo in prompt("Error parsing day number. Please enter the day number: "):
-            try:
-                dayNo = int(dayNo)
-            except:
-                print("Invalid Day Number")
-                continue
-
-            break
-
-    URL = "https://adventofcode.com/%d/day/%d/input" % (YEAR, dayNo)
-
-    # pretend to be linux firefox...
-    body = s.get(URL, headers={
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0"
-    })
-
-    fp = open("input.txt", "w")
-    fp.write(body.content.decode("utf-8"))
-    fp.close()
-
-    lines = body.content.decode("utf-8").splitlines()
-    lines = [r.strip("\n") for r in lines]
-
-    return lines
-
-
-if __name__ == "__main__":
-
-    if len(argv) < 2:
-        lines = fetchPuzzleInput()
+    if not (sy < tx or ty < sx):
+        return (min(tx, sx), max(sy, ty))
     else:
-        fp = open(argv[1], "r")
-        lines = fp.readlines()
-        lines = [r.strip("\n") for r in lines]
+        return None
 
-    for part in prompt("Which part to run ? [1 (default)/2]: "):
 
-        part = part.strip("\n")
+def merge_interval(intervals: list[tuple[int, int]], v: tuple[int, int]):
 
-        if len(part) == 0:
-            print(part1(lines))
-            break
+    new_intervals = []
 
-        try:
-            part = int(part)
-        except:
-            print("Invalid part number")
-            continue
+    curr = v
 
-        if part == 1:
-            print(part1(lines))
-        elif part == 2:
-            print(part2(lines))
+    for r in intervals:
+
+        if (s := merge(curr, r)) is not None:
+            curr = s
         else:
-            print("Invalid part number")
-            continue
+            new_intervals.append(r)
 
-        break
-# endregion
+    new_intervals.append(curr)
+    new_intervals.sort(key=lambda r: r[0])
+
+    return new_intervals
+
+
+def part1(lines: list[str]):
+
+    pattern = compile(
+        "Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)")
+
+    intervals = []
+
+    beacons = set()
+
+    for l in lines:
+
+        matches = match(pattern, l)
+        groups = matches.groups()
+
+        sx, sy = int(groups[0]), int(groups[1])
+
+        bx, by = int(groups[2]), int(groups[3])
+
+        if by == ROW_Y:
+            beacons.add((bx, by))
+
+        v = get_interval((sx, sy), (bx, by), ROW_Y)
+
+        if v is not None:
+            intervals = merge_interval(intervals, v)
+
+    total = 0
+    for (x, y) in intervals:
+        total += y - x + 1
+
+        for bx, by in beacons:
+            if x <= bx <= y:
+
+                total -= 1
+
+    return total
+
+
+def part2(lines: list[str]):
+    pattern = compile(
+        "Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)")
+
+    for y in range(0, 4000000):
+        intervals = []
+
+        beacons = set()
+        for l in lines:
+
+            matches = match(pattern, l)
+            groups = matches.groups()
+
+            sx, sy = int(groups[0]), int(groups[1])
+
+            bx, by = int(groups[2]), int(groups[3])
+
+            if by == y:
+                beacons.add((bx, by))
+
+            v = get_interval((sx, sy), (bx, by), y)
+
+            if v is not None:
+                intervals = merge_interval(intervals, v)
+
+        print(y, intervals)
+
+    pass
+
+
+AdventOfCode(part1, part2).exec()

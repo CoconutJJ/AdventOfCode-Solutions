@@ -1,139 +1,102 @@
-from typing import List
-from sys import argv
-import requests
-import os
+from aoc import AdventOfCode
 
 
-def part1(lines: List[str]):
-    pass
+def compare(left: list | int, right: list | int):
 
+    if type(left) == list and type(right) == list:
 
-def part2(lines: List[str]):
-    pass
+        for i in range(min(len(left), len(right))):
 
-
-# region Fetch Input and Run
-YEAR = 2022
-
-
-def sessionKey():
-    """
-        Move up the dir. tree until we see a file named SESSION. Then read
-        the session key.
-    """
-    cwd = os.getcwd()
-    curr = cwd
-    while not os.path.exists("SESSION"):
-        os.chdir(curr := os.path.join(curr, ".."))
-        if curr == "/":
-            print("Could not find SESSION file!")
-            exit(1)
-
-    key = open("SESSION", "r")
-    os.chdir(cwd)
-    return key.read().strip("\n")
-
-
-def prompt(message):
-    while True:
-
-        inp = input(message)
-        inp = inp.strip("\n")
-
-        if inp == "q":
-            os._exit(0)
-
-        if inp is None or len(inp) == 0:
-            print("invalid input: type q to quit")
-            continue
-
-        yield inp
-
-
-def fetchPuzzleInput():
-    """
-
-    """
-    print("Fetching puzzle input...")
-
-    if os.path.isfile("input.txt"):
-        print("Using cached input...")
-        fp = open("input.txt", "r")
-        lines = fp.readlines()
-        lines = [r.strip("\n") for r in lines]
-        return lines
-
-    s = requests.Session()
-
-    s.cookies.set("session", sessionKey(), domain=".adventofcode.com")
-
-    filename, _ = argv[0].split(".")
-
-    dayNo = None
-
-    if filename.startswith("day"):
-        try:
-            dayNo = int(filename[3:])
-        except:
-            dayNo = None
-
-    if dayNo is None:
-        for dayNo in prompt("Error parsing day number. Please enter the day number: "):
-            try:
-                dayNo = int(dayNo)
-            except:
-                print("Invalid Day Number")
+            if (v := compare(left[i], right[i])) == 0:
                 continue
 
-            break
+            return v
 
-    URL = "https://adventofcode.com/%d/day/%d/input" % (YEAR, dayNo)
-
-    # pretend to be linux firefox...
-    body = s.get(URL, headers={
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0"
-    })
-
-    fp = open("input.txt", "w")
-    fp.write(body.content.decode("utf-8"))
-    fp.close()
-
-    lines = body.content.decode("utf-8").splitlines()
-    lines = [r.strip("\n") for r in lines]
-
-    return lines
-
-
-if __name__ == "__main__":
-
-    if len(argv) < 2:
-        lines = fetchPuzzleInput()
-    else:
-        fp = open(argv[1], "r")
-        lines = fp.readlines()
-        lines = [r.strip("\n") for r in lines]
-
-    for part in prompt("Which part to run ? [1 (default)/2]: "):
-
-        part = part.strip("\n")
-
-        if len(part) == 0:
-            print(part1(lines))
-            break
-
-        try:
-            part = int(part)
-        except:
-            print("Invalid part number")
-            continue
-
-        if part == 1:
-            print(part1(lines))
-        elif part == 2:
-            print(part2(lines))
+        if len(left) < len(right):
+            return 1
+        elif len(left) > len(right):
+            return -1
         else:
-            print("Invalid part number")
+            return 0
+
+    if type(left) == int and type(right) == int:
+
+        if left < right:
+            return 1
+        if left > right:
+            return -1
+
+        return 0
+
+    if type(left) == int:
+        left = [left]
+
+    elif type(right) == int:
+        right = [right]
+
+    return compare(left, right)
+
+
+def part1(lines: list[str]):
+
+    packets = []
+    total = 0
+    idx = 1
+    for l in lines:
+
+        if len(l) == 0:
+            assert len(packets) == 2
+
+            if compare(packets[0], packets[1]) == 1:
+                total += idx
+
+            idx += 1
+            packets = []
+        else:
+            packets.append(eval(l))
+
+    return total
+
+
+def qsort(items: list):
+
+    if len(items) == 0:
+        return []
+
+    pivot = len(items)//2
+
+    left = []
+
+    right = []
+
+    for i, item in enumerate(items):
+
+        if i == pivot:
             continue
 
-        break
-# endregion
+        if compare(item, items[pivot]) >= 1:
+            left.append(item)
+        else:
+            right.append(item)
+
+    return qsort(left) + [items[pivot]] + qsort(right)
+
+
+def part2(lines: list[str]):
+
+    packets = []
+
+    for l in lines:
+        if len(l) == 0:
+            continue
+        packets.append(eval(l))
+
+    packets.append([[2]])
+    packets.append([[6]])
+
+    packets = qsort(packets)
+
+    return "\n".join(str(r) for r in packets)
+
+
+AdventOfCode(part1, part2).exec()

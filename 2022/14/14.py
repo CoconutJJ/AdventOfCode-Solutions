@@ -1,139 +1,147 @@
-from typing import List
-from sys import argv
-import requests
-import os
+from aoc import AdventOfCode
 
 
-def part1(lines: List[str]):
-    pass
+def parse_input(lines: list[str]):
+    points = set()
+    abyss_y = 0
+    for l in lines:
+        tokens = l.split(" -> ")
+        for start, end in zip(tokens[:-1], tokens[1:]):
+
+            x, y = start.split(",")
+            x, y = int(x), int(y)
+
+            s, t = end.split(",")
+            s, t = int(s), int(t)
+
+            abyss_y = max(abyss_y, y, t)
+
+            points = points.union(generate_line_coords((x, y), (s, t)))
+
+    return points, abyss_y
 
 
-def part2(lines: List[str]):
-    pass
+def sign(x: int):
+
+    if x < 0:
+        return -1
+    elif x == 0:
+        return 0
+    else:
+        return 1
 
 
-# region Fetch Input and Run
-YEAR = 2022
+def generate_line_coords(start: tuple[int, int], end: tuple[int, int]):
+
+    line = set()
+
+    s, t = end
+    x, y = start
+    line.add(start)
+    line.add(end)
+    dx, dy = (sign(s - x), sign(t - y))
+
+    while x != s or y != t:
+
+        line.add((x, y))
+        x += dx
+        y += dy
+
+    return line
 
 
-def sessionKey():
-    """
-        Move up the dir. tree until we see a file named SESSION. Then read
-        the session key.
-    """
-    cwd = os.getcwd()
-    curr = cwd
-    while not os.path.exists("SESSION"):
-        os.chdir(curr := os.path.join(curr, ".."))
-        if curr == "/":
-            print("Could not find SESSION file!")
-            exit(1)
+def neigbours(curr: tuple[int, int]):
 
-    key = open("SESSION", "r")
-    os.chdir(cwd)
-    return key.read().strip("\n")
+    x, y = curr
+
+    yield (x, y + 1)
+    yield (x - 1, y + 1)
+    yield (x + 1, y + 1)
 
 
-def prompt(message):
+def part1(lines: list[str]):
+
+    points, abyss_y = parse_input(lines)
+    curr = (500, 0)
+
+    def next_step(curr: tuple[int, int]):
+
+        for s, t in neigbours(curr):
+
+            if (s, t) not in points and t <= abyss_y:
+                return (s, t)
+            elif t > abyss_y:
+                return None
+
+        return curr
+
+    particles = 0
+
     while True:
 
-        inp = input(message)
-        inp = inp.strip("\n")
+        abyss = False
+        curr = (500, 0)
 
-        if inp == "q":
-            os._exit(0)
+        while True:
 
-        if inp is None or len(inp) == 0:
-            print("invalid input: type q to quit")
-            continue
+            step = next_step(curr)
 
-        yield inp
+            if step == curr:
+                break
 
+            if step is None:
+                abyss = True
+                break
 
-def fetchPuzzleInput():
-    """
+            curr = step
 
-    """
-    print("Fetching puzzle input...")
-
-    if os.path.isfile("input.txt"):
-        print("Using cached input...")
-        fp = open("input.txt", "r")
-        lines = fp.readlines()
-        lines = [r.strip("\n") for r in lines]
-        return lines
-
-    s = requests.Session()
-
-    s.cookies.set("session", sessionKey(), domain=".adventofcode.com")
-
-    filename, _ = argv[0].split(".")
-
-    dayNo = None
-
-    if filename.startswith("day"):
-        try:
-            dayNo = int(filename[3:])
-        except:
-            dayNo = None
-
-    if dayNo is None:
-        for dayNo in prompt("Error parsing day number. Please enter the day number: "):
-            try:
-                dayNo = int(dayNo)
-            except:
-                print("Invalid Day Number")
-                continue
-
+        if abyss:
             break
 
-    URL = "https://adventofcode.com/%d/day/%d/input" % (YEAR, dayNo)
+        points.add(curr)
+        particles += 1
 
-    # pretend to be linux firefox...
-    body = s.get(URL, headers={
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0"
-    })
-
-    fp = open("input.txt", "w")
-    fp.write(body.content.decode("utf-8"))
-    fp.close()
-
-    lines = body.content.decode("utf-8").splitlines()
-    lines = [r.strip("\n") for r in lines]
-
-    return lines
+    return particles
 
 
-if __name__ == "__main__":
+def part2(lines: list[str]):
+    points, abyss_y = parse_input(lines)
 
-    if len(argv) < 2:
-        lines = fetchPuzzleInput()
-    else:
-        fp = open(argv[1], "r")
-        lines = fp.readlines()
-        lines = [r.strip("\n") for r in lines]
+    curr = (500, 0)
 
-    for part in prompt("Which part to run ? [1 (default)/2]: "):
+    abyss_y += 2
 
-        part = part.strip("\n")
+    def next_step(curr: tuple[int, int]):
 
-        if len(part) == 0:
-            print(part1(lines))
+        for s, t in neigbours(curr):
+
+            if t == abyss_y:
+                return curr
+
+            if (s, t) not in points:
+                return (s, t)
+
+        return curr
+
+    particles = 0
+
+    while True:
+        curr = (500, 0)
+        while True:
+            step = next_step(curr)
+
+            if step == curr:
+                break
+
+            curr = step
+
+        points.add(curr)
+        particles += 1
+
+        if curr == (500, 0):
             break
 
-        try:
-            part = int(part)
-        except:
-            print("Invalid part number")
-            continue
+    return particles
 
-        if part == 1:
-            print(part1(lines))
-        elif part == 2:
-            print(part2(lines))
-        else:
-            print("Invalid part number")
-            continue
 
-        break
-# endregion
+AdventOfCode(part1, part2).exec()

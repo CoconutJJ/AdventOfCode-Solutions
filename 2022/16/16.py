@@ -1,139 +1,199 @@
-from typing import List
-from sys import argv
-import requests
-import os
+from aoc import AdventOfCode
+from re import compile
 
 
-def part1(lines: List[str]):
-    pass
+def part1(lines: list[str]):
 
+    pattern = compile(
+        "Valve (.{2}) has flow rate=(\d+); tunnels? leads? to valves? (.+)")
 
-def part2(lines: List[str]):
-    pass
+    G = dict()
 
+    nodes = []
 
-# region Fetch Input and Run
-YEAR = 2022
+    non_zero_flow_rate_nodes = []
 
+    flow_rate = dict()
 
-def sessionKey():
-    """
-        Move up the dir. tree until we see a file named SESSION. Then read
-        the session key.
-    """
-    cwd = os.getcwd()
-    curr = cwd
-    while not os.path.exists("SESSION"):
-        os.chdir(curr := os.path.join(curr, ".."))
-        if curr == "/":
-            print("Could not find SESSION file!")
-            exit(1)
+    distances = dict()
 
-    key = open("SESSION", "r")
-    os.chdir(cwd)
-    return key.read().strip("\n")
+    for l in lines:
+        matches = pattern.match(l)
 
+        groups = matches.groups()
 
-def prompt(message):
-    while True:
+        valve = groups[0]
+        rate = int(groups[1])
+        children = groups[2].split(", ")
+        flow_rate[valve] = rate
+        nodes.append(valve)
 
-        inp = input(message)
-        inp = inp.strip("\n")
+        if rate > 0:
+            non_zero_flow_rate_nodes.append(valve)
 
-        if inp == "q":
-            os._exit(0)
+        for c in children:
+            distances[(valve, c)] = 1
+            distances[(c, valve)] = 1
 
-        if inp is None or len(inp) == 0:
-            print("invalid input: type q to quit")
-            continue
+    def distance_of(edge: tuple[str, str]):
 
-        yield inp
+        if edge in distances:
+            return distances[edge]
 
+        return float('inf')
 
-def fetchPuzzleInput():
-    """
+    for k in nodes:
+        for x in nodes:
+            for y in nodes:
 
-    """
-    print("Fetching puzzle input...")
+                new_dist = distance_of((x, k)) + distance_of((k, y))
 
-    if os.path.isfile("input.txt"):
-        print("Using cached input...")
-        fp = open("input.txt", "r")
-        lines = fp.readlines()
-        lines = [r.strip("\n") for r in lines]
-        return lines
+                if distance_of((x, y)) > new_dist:
 
-    s = requests.Session()
+                    distances[(x, y)] = new_dist
 
-    s.cookies.set("session", sessionKey(), domain=".adventofcode.com")
+    q = [("AA", 30, set(), 0)]
 
-    filename, _ = argv[0].split(".")
+    max_total = 0
 
-    dayNo = None
+    while len(q) != 0:
 
-    if filename.startswith("day"):
-        try:
-            dayNo = int(filename[3:])
-        except:
-            dayNo = None
+        node, time, visited, total = q.pop(0)
 
-    if dayNo is None:
-        for dayNo in prompt("Error parsing day number. Please enter the day number: "):
-            try:
-                dayNo = int(dayNo)
-            except:
-                print("Invalid Day Number")
+        max_total = max(max_total, total)
+
+        for r in non_zero_flow_rate_nodes:
+
+            if r in visited:
                 continue
 
+            new_visited = set(visited)
+
+            new_visited.add(r)
+
+            new_time = time - distance_of((node, r)) - 1
+
+            new_total = total + new_time * flow_rate[r]
+
+            if new_time >= 0:
+                q.append((r, time - distance_of((node, r)) -
+                         1, new_visited, new_total))
+
+    return max_total
+
+
+def part2(lines: list[str]):
+
+    pattern = compile(
+        "Valve (.{2}) has flow rate=(\d+); tunnels? leads? to valves? (.+)")
+
+    G = dict()
+
+    nodes = []
+
+    non_zero_flow_rate_nodes = []
+
+    flow_rate = dict()
+
+    distances = dict()
+
+    for l in lines:
+        matches = pattern.match(l)
+
+        groups = matches.groups()
+
+        valve = groups[0]
+        rate = int(groups[1])
+        children = groups[2].split(", ")
+        flow_rate[valve] = rate
+        nodes.append(valve)
+
+        if rate > 0:
+            non_zero_flow_rate_nodes.append(valve)
+
+        for c in children:
+            distances[(valve, c)] = 1
+            distances[(c, valve)] = 1
+
+    def distance_of(edge: tuple[str, str]):
+
+        if edge in distances:
+            return distances[edge]
+
+        return float('inf')
+
+    for k in nodes:
+        for x in nodes:
+            for y in nodes:
+
+                new_dist = distance_of((x, k)) + distance_of((k, y))
+
+                if distance_of((x, y)) > new_dist:
+
+                    distances[(x, y)] = new_dist
+
+    node_pairs = []
+
+    for r in non_zero_flow_rate_nodes:
+        for s in non_zero_flow_rate_nodes:
+            if r != s:
+                node_pairs.append((r, s))
+
+    q = [("AA", 26, 0)]
+
+    t = [("AA", 26, 0)]
+
+    visited = [set()]
+
+    max_total = 0
+
+    while True:
+
+        if len(q) == 0 and len(t) == 0:
             break
 
-    URL = "https://adventofcode.com/%d/day/%d/input" % (YEAR, dayNo)
-
-    # pretend to be linux firefox...
-    body = s.get(URL, headers={
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0"
-    })
-
-    fp = open("input.txt", "w")
-    fp.write(body.content.decode("utf-8"))
-    fp.close()
-
-    lines = body.content.decode("utf-8").splitlines()
-    lines = [r.strip("\n") for r in lines]
-
-    return lines
-
-
-if __name__ == "__main__":
-
-    if len(argv) < 2:
-        lines = fetchPuzzleInput()
-    else:
-        fp = open(argv[1], "r")
-        lines = fp.readlines()
-        lines = [r.strip("\n") for r in lines]
-
-    for part in prompt("Which part to run ? [1 (default)/2]: "):
-
-        part = part.strip("\n")
-
-        if len(part) == 0:
-            print(part1(lines))
-            break
+        total = 0
 
         try:
-            part = int(part)
+            n1, t1, total1 = q.pop()
+            total += total1
         except:
-            print("Invalid part number")
-            continue
+            n1, t1, total1 = None, None, None
 
-        if part == 1:
-            print(part1(lines))
-        elif part == 2:
-            print(part2(lines))
-        else:
-            print("Invalid part number")
-            continue
+        try:
+            n2, t2, total2 = t.pop()
+            total += total2
+        except:
+            n2, t2, total2 = None, None, None
 
-        break
-# endregion
+        path = visited.pop()
+        max_total = max(max_total, total)
+
+        for r in non_zero_flow_rate_nodes:
+
+            if r in path:
+                continue
+
+            new_path = set(path)
+            new_path.add(r)
+
+            if n1 is not None:
+                new_t1 = t1 - distance_of((n1, r)) - 1
+
+                if new_t1 >= 0:
+                    q.append((r, new_t1, total1 + new_t1 * flow_rate[r]))
+                    t.append((n2, t2, total2))
+                    visited.append(new_path)
+
+            if n2 is not None:
+                new_t2 = t2 - distance_of((n2, r)) - 1
+
+                if new_t2 >= 0:
+                    q.append((n1, t1, total1))
+                    t.append((r, new_t2, total2 + new_t2 * flow_rate[r]))
+                    visited.append(set(new_path))
+
+    return max_total
+
+
+AdventOfCode(part1, part2).exec()
