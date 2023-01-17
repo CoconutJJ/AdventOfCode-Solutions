@@ -46,7 +46,7 @@ def buildFileTree(lines: list[str]):
 
 
 def printFileTree(root: 'File', tab=0):
-    print("\t" * tab, root.name, "dir" if root.size == 0 else "file", )
+    print("\t" * tab, root.name, "dir" if root.size == 0 else "file")
     for f in root.children:
         printFileTree(f, tab + 1)
 
