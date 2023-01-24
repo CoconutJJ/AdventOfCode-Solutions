@@ -8,6 +8,89 @@ use std::io::{BufRead, BufReader};
 use std::path::Path;
 use std::process;
 
+fn dual_bfs(
+    distances: &HashMap<(String, String), i32>,
+    flow_rate: &HashMap<String, i32>,
+    non_zero_nodes: &Vec<String>,
+) -> i32 {
+    let mut q: VecDeque<(String, String, i32, i32, HashSet<String>, i32)> = VecDeque::new();
+
+    q.push_back((
+        String::from("AA"),
+        String::from("AA"),
+        26,
+        26,
+        HashSet::new(),
+        0,
+    ));
+
+    let mut max_total: i32 = 0;
+
+    let mut visit_pairs: Vec<(String, String)> = Vec::new();
+
+    for r in non_zero_nodes {
+        for s in non_zero_nodes {
+            if r == s {
+                continue;
+            }
+            visit_pairs.push((r.clone(), s.clone()));
+        }
+    }
+
+    println!("{:?}", visit_pairs);
+
+    while q.len() != 0 {
+        let (human_pos, elephant_pos, human_time, elephant_time, visited, mut total) =
+            q.pop_front().unwrap();
+
+        for (mut r, mut s) in visit_pairs.clone() {
+            let mut new_visited = visited.clone();
+
+            if new_visited.contains(&r) || new_visited.contains(&s) {
+                continue;
+            }
+
+            let human_pos = human_pos.clone();
+            let elephant_pos = elephant_pos.clone();
+
+            let &human_dist = distances
+                .get(&(human_pos.clone(), r.clone()))
+                .unwrap_or(&i32::MIN);
+
+            let &elephant_dist = distances
+                .get(&(elephant_pos.clone(), s.clone()))
+                .unwrap_or(&i32::MIN);
+
+            if human_dist == i32::MIN || elephant_dist == i32::MIN {
+                continue;
+            }
+
+            let mut new_human_time = human_time - human_dist - 1;
+            let mut new_elephant_time = elephant_time - elephant_dist - 1;
+
+            if new_human_time < 0 {
+                new_human_time = 0;
+                r = human_pos.clone();
+            } else {
+                new_visited.insert(r.to_owned());
+                total += new_human_time * flow_rate.get(&r).unwrap();
+            }
+
+            if new_elephant_time < 0 {
+                new_elephant_time = 0;
+                s = elephant_pos;
+            } else {
+                new_visited.insert(s.to_owned());
+                total += new_elephant_time * flow_rate.get(&s).unwrap();
+            }
+
+            max_total = max(max_total, total);
+            q.push_back((r, s, new_human_time, new_elephant_time, new_visited, total));
+        }
+    }
+    return max_total;
+}
+
 fn bfs(
     distances: &HashMap<(String, String), i32>,
     flow_rate: &HashMap<String, i32>,
@@ -61,15 +144,15 @@ fn floyd_warshall(distances: &mut HashMap<(String, String), i32>, nodes: &Vec<St
     for k in 0..nodes.len() {
         for x in 0..nodes.len() {
             for y in 0..nodes.len() {
-                let curr_distance = *distances
+                let &curr_distance = distances
                     .get(&(nodes[x].to_owned(), nodes[y].to_owned()))
                     .unwrap_or(&-1);
 
-                let x_to_k = *distances
+                let &x_to_k = distances
                     .get(&(nodes[x].to_owned(), nodes[k].to_owned()))
                     .unwrap_or(&-1);
 
-                let k_to_y = *distances
+                let &k_to_y = distances
                     .get(&(nodes[k].to_owned(), nodes[y].to_owned()))
                     .unwrap_or(&-1);
 
@@ -153,7 +236,7 @@ fn main() {
 
     floyd_warshall(&mut distances, &nodes);
 
-    let total = bfs(&distances, &flow_rate, &non_zero_flow_rate_nodes);
+    let total = dual_bfs(&distances, &flow_rate, &non_zero_flow_rate_nodes);
 
     println!("total: {}", total);
 }

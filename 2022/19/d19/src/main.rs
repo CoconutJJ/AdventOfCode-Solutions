@@ -1,7 +1,7 @@
+use std::collections::{HashSet, VecDeque};
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
-use std::collections::{HashSet, VecDeque};
 struct State {
     ore: u32,
     clay: u32,
@@ -40,21 +40,10 @@ fn update_state(st: &mut State) {
     st.minute -= 1;
 }
 
-
 fn main() {
-
-
     let mut q: VecDeque<State> = VecDeque::new();
 
     while q.len() != 0 {
-
         let st = q.pop_front().unwrap();
-
-                
-        
-
-
     }
-
-
 }
